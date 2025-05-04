@@ -12,9 +12,15 @@ class Volunteer(db.Model):
     phone = db.Column(db.String(20))
 
     teams = db.relationship('Team', secondary=volunteer_team, back_populates='volunteers')
+    def __str__(self):
+        return self.name
+
 
 class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
 
-    volunteers = db.relationship('Volunteer', secondary=volunteer_team, back_populates='teams')
+    volunteers = db.relationship('Volunteer', secondary='volunteer_team', back_populates='teams')
+
+    def __str__(self):
+        return self.name  # <- This is what shows in dropdowns
