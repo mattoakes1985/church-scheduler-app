@@ -1,0 +1,10 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+    <h3>Team and Role Connectivity</h3>
+    <div id="graph"></div>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        const graph = {{ graphJSON|safe }};
+        Plotly.newPlot('graph', graph.data, graph.layout);
+    </script>
+{% endblock %}

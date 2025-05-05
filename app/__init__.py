@@ -7,6 +7,9 @@ from .forms import VolunteerForm
 from .core.models import Volunteer, Team, Role, TeamRole, VolunteerTeamRole
 from app.extensions import db
 
+
+
+
 def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///church.db'
@@ -18,8 +21,8 @@ def create_app():
     with app.app_context():
         from . import routes
         from .core import models
-        # ❌ Remove db.create_all() – let Flask-Migrate handle schema updates
-        # db.create_all()
+        from .admin import DashboardView 
+
 
     # Set up admin
     admin = Admin(
@@ -34,5 +37,7 @@ def create_app():
     admin.add_view(BasicModelView(Role, db.session, endpoint='roles'))
     admin.add_view(TeamRoleAdmin(TeamRole, db.session, endpoint='teamroles'))
     admin.add_view(VolunteerTeamRoleAdmin(VolunteerTeamRole, db.session, endpoint='volunteerteamroles'))
+    admin.add_view(DashboardView(name='Dashboard', endpoint='dashboard'))
+
 
     return app
