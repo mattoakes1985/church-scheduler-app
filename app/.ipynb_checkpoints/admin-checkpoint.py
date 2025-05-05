@@ -1,6 +1,5 @@
 from flask_admin.contrib.sqla import ModelView
 from .forms import VolunteerForm
-from app.extensions import db
 from app.core.models import Team, Volunteer, Role, TeamRole, VolunteerTeamRole
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 from app.extensions import db
@@ -12,11 +11,15 @@ class VolunteerAdminView(ModelView):
 
     def scaffold_form(self):
         form_class = super().scaffold_form()
+        from wtforms import BooleanField
+        form_class.is_lead = BooleanField('Is Lead')
+        
         form_class.teams = QuerySelectMultipleField(
             'Teams',
             query_factory=lambda: db.session.query(Team).all(),
             widget=Select2Widget()
         )
+        
         return form_class
 
 def get_volunteers():
@@ -29,8 +32,8 @@ def get_roles():
     return db.session.query(Role).all()
 
 class VolunteerTeamRoleAdmin(ModelView):
-    form_columns = ['volunteer', 'team', 'role']
-    column_list = ['volunteer', 'team', 'role']
+    form_columns = ['volunteer', 'team', 'role', 'is_lead']
+    column_list = ['volunteer', 'team', 'role', 'is_lead']
 
     def scaffold_form(self):
         form_class = super().scaffold_form()
@@ -52,6 +55,10 @@ class VolunteerTeamRoleAdmin(ModelView):
             widget=Select2Widget(),
             allow_blank=True
         )
+        from wtforms import BooleanField
+        form_class.is_lead = BooleanField('Is Lead')
+
+        
         return form_class
 
 class TeamRoleAdmin(ModelView):

@@ -1,8 +1,6 @@
 from app.extensions import db
 
-
-
-
+# Association table for many-to-many Volunteer <-> Team
 volunteer_team = db.Table('volunteer_team',
     db.Column('volunteer_id', db.Integer, db.ForeignKey('volunteer.id')),
     db.Column('team_id', db.Integer, db.ForeignKey('team.id'))
@@ -15,6 +13,7 @@ class Volunteer(db.Model):
     phone = db.Column(db.String(20))
 
     teams = db.relationship('Team', secondary=volunteer_team, back_populates='volunteers')
+    volunteer_roles = db.relationship('VolunteerTeamRole', back_populates='volunteer', cascade='all, delete-orphan')
 
     def __str__(self):
         return self.name
@@ -24,6 +23,8 @@ class Team(db.Model):
     name = db.Column(db.String(100), nullable=False)
 
     volunteers = db.relationship('Volunteer', secondary=volunteer_team, back_populates='teams')
+    team_roles = db.relationship('TeamRole', back_populates='team', cascade='all, delete-orphan')
+    volunteer_team_roles = db.relationship('VolunteerTeamRole', back_populates='team', cascade='all, delete-orphan')
 
     def __str__(self):
         return self.name
@@ -31,7 +32,10 @@ class Team(db.Model):
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    is_lead = db.Column(db.Boolean, default=False)
+    is_lead = db.Column(db.Boolean, default=False)  # Hidden flag, not for UI
+
+    team_roles = db.relationship('TeamRole', back_populates='role', cascade='all, delete-orphan')
+    volunteer_team_roles = db.relationship('VolunteerTeamRole', back_populates='role', cascade='all, delete-orphan')
 
     def __str__(self):
         return self.name
@@ -41,15 +45,16 @@ class TeamRole(db.Model):
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'))
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
 
-    team = db.relationship('Team', backref=db.backref('team_roles', cascade="all, delete-orphan"))
-    role = db.relationship('Role')
+    team = db.relationship('Team', back_populates='team_roles')
+    role = db.relationship('Role', back_populates='team_roles')
 
 class VolunteerTeamRole(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'))
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'))
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
+    is_lead = db.Column(db.Boolean, default=False)
 
-    volunteer = db.relationship('Volunteer', backref=db.backref('volunteer_roles', cascade="all, delete-orphan"))
-    team = db.relationship('Team')
-    role = db.relationship('Role')
+    volunteer = db.relationship('Volunteer', back_populates='volunteer_roles')
+    team = db.relationship('Team', back_populates='volunteer_team_roles')
+    role = db.relationship('Role', back_populates='volunteer_team_roles')
