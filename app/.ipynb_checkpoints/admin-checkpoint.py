@@ -108,6 +108,7 @@ class DashboardView(BaseView):
         for volunteer, team, role in connections:
             nodes.update([volunteer, team, role])
             edges.append((volunteer, team))
+            edges.append((volunteer, role))
             edges.append((team, role))
 
         node_list = list(nodes)
@@ -143,8 +144,8 @@ class DashboardView(BaseView):
                             showlegend=False,
                             hovermode='closest',
                             margin=dict(b=20, l=5, r=5, t=40),
-                            xaxis=dict(showgrid=False, zeroline=False),
-                            yaxis=dict(showgrid=False, zeroline=False)))
+                            xaxis=dict(visible=False),
+                            yaxis=dict(visible=False)))
 
         graph_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 

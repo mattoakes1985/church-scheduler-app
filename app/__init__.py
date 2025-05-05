@@ -10,6 +10,7 @@ from app.extensions import db
 
 
 
+
 def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///church.db'
@@ -21,7 +22,8 @@ def create_app():
     with app.app_context():
         from . import routes
         from .core import models
-        from .admin import DashboardView 
+        from .dashboard import DashboardView
+
 
 
     # Set up admin
