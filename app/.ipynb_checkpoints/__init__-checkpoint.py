@@ -1,13 +1,13 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin
 
-from .admin import VolunteerAdminView, BasicModelView
+from .admin import VolunteerAdminView, VolunteerTeamRoleAdmin, TeamRoleAdmin, BasicModelView
+
 from .forms import VolunteerForm
 from .core.models import Volunteer, Team, Role, TeamRole, VolunteerTeamRole
 
+from app.extensions import db
 
-db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
@@ -25,12 +25,18 @@ def create_app():
         db.create_all()
 
     # Set up admin
-    admin = Admin(app, name="Church Scheduler Admin", template_mode='bootstrap4', base_template='admin/base.html')
+    admin = Admin(
+        app,
+        name="Church Scheduler Admin",
+        template_mode='bootstrap4',
+        base_template='admin/my_base.html'
+    )
+    
+    admin.add_view(VolunteerAdminView(Volunteer, db.session, endpoint='volunteers'))
+    admin.add_view(BasicModelView(Team, db.session, endpoint='teams'))
+    admin.add_view(BasicModelView(Role, db.session, endpoint='roles'))
+    admin.add_view(TeamRoleAdmin(TeamRole, db.session, endpoint='teamroles'))
+    admin.add_view(VolunteerTeamRoleAdmin(VolunteerTeamRole, db.session, endpoint='volunteerteamroles'))
 
-    admin.add_view(VolunteerAdminView(Volunteer, db.session))
-    admin.add_view(BasicModelView(Team, db.session))
-    admin.add_view(BasicModelView(Role, db.session))
-    admin.add_view(BasicModelView(TeamRole, db.session))
-    admin.add_view(BasicModelView(VolunteerTeamRole, db.session))
 
     return app
