@@ -25,7 +25,8 @@ def create_app():
         db.create_all()
 
     # Set up admin
-    admin = Admin(app, name="Church Scheduler Admin", template_mode='bootstrap4')
+    admin = Admin(app, name="Church Scheduler Admin", template_mode='bootstrap4', base_template='admin/base.html')
+
     admin.add_view(VolunteerAdminView(Volunteer, db.session))
     admin.add_view(BasicModelView(Team, db.session))
     admin.add_view(BasicModelView(Role, db.session))
