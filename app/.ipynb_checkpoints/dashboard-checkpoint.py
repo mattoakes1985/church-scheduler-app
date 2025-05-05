@@ -1,3 +1,4 @@
+
 from flask_admin import BaseView, expose
 from flask import render_template
 import plotly.graph_objs as go
@@ -34,18 +35,32 @@ class DashboardView(BaseView):
             x=[], y=[], line=dict(width=0.5, color='#888'), hoverinfo='none', mode='lines')
         node_trace = go.Scatter(
             x=[], y=[], text=[], mode='markers+text', textposition='top center',
-            marker=dict(showscale=False, color=[], size=10, line_width=2))
+            marker=dict(showscale=False, color=[], size=[], line_width=2))
 
         G = nx.Graph()
         G.add_edges_from([(node_idx[src], node_idx[tgt]) for src, tgt in edges])
         pos = nx.spring_layout(G, seed=42)
 
         for idx, name in enumerate(node_list):
+            volunteer_names = {v.name for v in db.session.query(Volunteer).all()}
+            team_names = {t.name for t in db.session.query(Team).all()}
+            role_names = {r.name for r in db.session.query(Role).all()}
             x, y = pos[idx]
             node_trace['x'] += (x,)
             node_trace['y'] += (y,)
             node_trace['text'] += (name,)
-            node_trace['marker']['color'] += ('#1f77b4',)
+            if name in volunteer_names:
+                node_trace['marker']['color'] += ('#1f77b4',)
+                node_trace['marker']['size'] += (12,)
+            elif name in team_names:
+                node_trace['marker']['color'] += ('#2ca02c',)
+                node_trace['marker']['size'] += (18,)
+            elif name in role_names:
+                node_trace['marker']['color'] += ('#ff7f0e',)
+                node_trace['marker']['size'] += (8,)
+            else:
+                node_trace['marker']['color'] += ('#cccccc',)
+                node_trace['marker']['size'] += (10,)
 
         for edge in edges:
             x0, y0 = pos[node_idx[edge[0]]]
@@ -64,3 +79,4 @@ class DashboardView(BaseView):
 
         graph_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
         return self.render('admin/dashboard.html', graphJSON=graph_json)
+
