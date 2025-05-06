@@ -2,10 +2,11 @@ from flask import Flask
 from flask_admin import Admin
 from flask_migrate import Migrate
 
-from .admin import VolunteerAdminView, VolunteerTeamRoleAdmin, TeamRoleAdmin, BasicModelView
+from .admin import VolunteerAdminView, VolunteerTeamRoleAdmin, TeamRoleAdmin, BasicModelView, EventTeamRequirementAdmin
 from .forms import VolunteerForm
-from .core.models import Volunteer, Team, Role, TeamRole, VolunteerTeamRole
+from .core.models import Volunteer, Team, Role, TeamRole, VolunteerTeamRole, Event, EventTemplate, EventTeamRequirement
 from app.extensions import db
+from app.core.models import Event, Team, Role
 
 
 
@@ -34,12 +35,22 @@ def create_app():
         base_template='admin/my_base.html'
     )
 
-    admin.add_view(VolunteerAdminView(Volunteer, db.session, endpoint='volunteers'))
-    admin.add_view(BasicModelView(Team, db.session, endpoint='teams'))
-    admin.add_view(BasicModelView(Role, db.session, endpoint='roles'))
-    admin.add_view(TeamRoleAdmin(TeamRole, db.session, endpoint='teamroles'))
-    admin.add_view(VolunteerTeamRoleAdmin(VolunteerTeamRole, db.session, endpoint='volunteerteamroles'))
-    admin.add_view(DashboardView(name='Dashboard', endpoint='dashboard'))
+    # Dashboard (custom)
+    admin.add_view(DashboardView())
+    
+    # People & Teams
+    admin.add_view(VolunteerAdminView(Volunteer, db.session, endpoint='volunteers', category='People & Teams'))
+    admin.add_view(BasicModelView(Team, db.session, endpoint='teams', category='People & Teams'))
+    admin.add_view(BasicModelView(Role, db.session, endpoint='roles', category='People & Teams'))
+    admin.add_view(TeamRoleAdmin(TeamRole, db.session, endpoint='teamroles', category='People & Teams'))
+    admin.add_view(VolunteerTeamRoleAdmin(VolunteerTeamRole, db.session, endpoint='volunteerteamroles', category='People & Teams'))
+    
+    # Events
+    admin.add_view(BasicModelView(Event, db.session, category='Events'))
+    admin.add_view(BasicModelView(EventTemplate, db.session, category='Events'))
+    admin.add_view(EventTeamRequirementAdmin(EventTeamRequirement, db.session, category='Events'))
+    
+
 
 
     return app

@@ -1,6 +1,6 @@
 from flask_admin.contrib.sqla import ModelView
 from .forms import VolunteerForm
-from app.core.models import Team, Volunteer, Role, TeamRole, VolunteerTeamRole
+from app.core.models import Volunteer, Team, Role, TeamRole, VolunteerTeamRole, Event, EventTemplate, EventTeamRequirement
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 from app.extensions import db
 from flask_admin.form import Select2Widget
@@ -80,6 +80,40 @@ class TeamRoleAdmin(ModelView):
             allow_blank=True
         )
         return form_class
+
+
+class EventTeamRequirementAdmin(ModelView):
+    form_columns = ['event', 'team', 'role']
+
+    def scaffold_form(self):
+        form_class = super().scaffold_form()
+
+        form_class.event = QuerySelectField(
+            'Event',
+            query_factory=lambda: db.session.query(Event).all(),
+            get_label='name',
+            widget=Select2Widget(),
+            allow_blank=True
+        )
+
+        form_class.team = QuerySelectField(
+            'Team',
+            query_factory=lambda: db.session.query(Team).all(),
+            get_label='name',
+            widget=Select2Widget(),
+            allow_blank=True
+        )
+
+        form_class.role = QuerySelectField(
+            'Role',
+            query_factory=lambda: db.session.query(Role).all(),
+            get_label='name',
+            widget=Select2Widget(),
+            allow_blank=True
+        )
+
+        return form_class
+
 
 class BasicModelView(ModelView):
     pass

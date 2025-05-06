@@ -1,4 +1,5 @@
 from app.extensions import db
+from datetime import datetime
 
 # Association table for many-to-many Volunteer <-> Team
 volunteer_team = db.Table('volunteer_team',
@@ -58,3 +59,28 @@ class VolunteerTeamRole(db.Model):
     volunteer = db.relationship('Volunteer', back_populates='volunteer_roles')
     team = db.relationship('Team', back_populates='volunteer_team_roles')
     role = db.relationship('Role', back_populates='volunteer_team_roles')
+
+
+
+class Event(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    description = db.Column(db.Text, nullable=True)
+    event_type = db.Column(db.String(50), nullable=False)
+
+    team_requirements = db.relationship('EventTeamRequirement', backref='event', lazy=True)
+
+class EventTemplate(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+
+class EventTeamRequirement(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
+
+    team = db.relationship('Team')
+    role = db.relationship('Role')
