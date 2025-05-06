@@ -1,7 +1,11 @@
 from flask_admin.contrib.sqla import ModelView
 from .forms import VolunteerForm
 from app.core.models import Volunteer, Team, Role, TeamRole, VolunteerTeamRole, Event, EventTemplate, EventTeamRequirement
+
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
+from wtforms import SelectField
+from wtforms.validators import DataRequired
+
 from app.extensions import db
 from flask_admin.form import Select2Widget
 from flask import current_app
@@ -112,6 +116,54 @@ class EventTeamRequirementAdmin(ModelView):
             allow_blank=True
         )
 
+        return form_class
+
+class EventAdminView(ModelView):
+    form_columns = ['name', 'date', 'description', 'event_type', 'template_id']
+
+    def scaffold_form(self):
+        form_class = super().scaffold_form()
+
+        # Override the event_type field completely
+        class EventTypeSelectField(SelectField):
+            def iter_choices(self):
+                for value, label in self.choices:
+                    yield (value, label, self.data == value)
+
+        form_class.event_type = EventTypeSelectField(
+            'Event Type',
+            choices=[('service', 'Service'), ('special', 'Special Event')],
+            validators=[DataRequired()]
+        )
+
+        # Handle the template field as a QuerySelectField
+        form_class.template_id = QuerySelectField(
+            'Template',
+            query_factory=lambda: db.session.query(EventTemplate).all(),
+            get_label='name',
+            allow_blank=True
+        )
+
+        return form_class
+
+    def scaffold_form(self):
+        form_class = super().scaffold_form()
+        form_class.template = QuerySelectField(
+            'Template',
+            query_factory=lambda: db.session.query(EventTemplate).all(),
+            get_label='name',
+            allow_blank=True
+        )
+        return form_class
+
+class EventTemplateAdmin(ModelView):
+    form_columns = ['name', 'description']  # Already done
+
+    def scaffold_form(self):
+        form_class = super().scaffold_form()
+        # Explicitly remove any problematic fields
+        if hasattr(form_class, 'events'):
+            delattr(form_class, 'events')
         return form_class
 
 
