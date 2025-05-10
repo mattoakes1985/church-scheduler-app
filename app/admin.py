@@ -119,42 +119,58 @@ class EventTeamRequirementAdmin(ModelView):
         return form_class
 
 class EventAdminView(ModelView):
-    form_columns = ['name', 'date', 'description', 'event_type', 'template_id']
+    form_columns = ['name', 'date', 'description', 'event_type', 'template']
 
-    def scaffold_form(self):
-        form_class = super().scaffold_form()
+    form_overrides = {
+        'event_type': SelectField
+    }
 
-        # Override the event_type field completely
-        class EventTypeSelectField(SelectField):
-            def iter_choices(self):
-                for value, label in self.choices:
-                    yield (value, label, self.data == value)
+    form_args = {
+        'event_type': {
+            'label': 'Event Type',
+            'choices': [('service', 'Service'), ('special', 'Special Event')],
+            'validators': [DataRequired()],
+            'coerce': str
+        }
+    }
 
-        form_class.event_type = EventTypeSelectField(
-            'Event Type',
-            choices=[('service', 'Service'), ('special', 'Special Event')],
-            validators=[DataRequired()]
-        )
-
-        # Handle the template field as a QuerySelectField
-        form_class.template_id = QuerySelectField(
+    form_extra_fields = {
+        'template': QuerySelectField(
             'Template',
             query_factory=lambda: db.session.query(EventTemplate).all(),
             get_label='name',
             allow_blank=True
         )
+    }
 
-        return form_class
+    def after_model_change(self, form, model, is_created):
+        if is_created and model.template:
+            # Fetch all TeamRole entries associated with the selected template
+            team_roles = db.session.query(TeamRole).filter_by(template_id=model.template.id).all()
+            for team_role in team_roles:
+                requirement = EventTeamRequirement(
+                    event_id=model.id,
+                    team_id=team_role.team_id,
+                    role_id=team_role.role_id
+                )
+                db.session.add(requirement)
+            db.session.commit()
 
-    def scaffold_form(self):
-        form_class = super().scaffold_form()
-        form_class.template = QuerySelectField(
-            'Template',
-            query_factory=lambda: db.session.query(EventTemplate).all(),
-            get_label='name',
-            allow_blank=True
-        )
-        return form_class
+    
+    def after_model_change(self, form, model, is_created):
+        if is_created and model.template_id:
+            template_roles = db.session.query(TemplateTeamRole).filter_by(template_id=model.template_id).all()
+
+            for tr in template_roles:
+                requirement = EventTeamRequirement(
+                    event_id=model.id,
+                    team_id=tr.team_id,
+                    role_id=tr.role_id
+            )
+            db.session.add(requirement)
+
+        db.session.commit()
+
 
 class EventTemplateAdmin(ModelView):
     form_columns = ['name', 'description']  # Already done
@@ -167,7 +183,36 @@ class EventTemplateAdmin(ModelView):
         return form_class
 
 
+
+class TemplateTeamRoleAdmin(ModelView):
+    form_columns = ['template', 'team', 'role']
+
+    def scaffold_form(self):
+        form_class = super().scaffold_form()
+
+        form_class.template = QuerySelectField(
+            'Template',
+            query_factory=lambda: db.session.query(EventTemplate).all(),
+            get_label='name',
+            allow_blank=True
+        )
+
+        form_class.team = QuerySelectField(
+            'Team',
+            query_factory=lambda: db.session.query(Team).all(),
+            get_label='name',
+            allow_blank=True
+        )
+
+        form_class.role = QuerySelectField(
+            'Role',
+            query_factory=lambda: db.session.query(Role).all(),
+            get_label='name',
+            allow_blank=True
+        )
+
+        return form_class
+
+
 class BasicModelView(ModelView):
     pass
-
-

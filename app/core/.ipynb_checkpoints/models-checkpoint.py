@@ -45,7 +45,8 @@ class TeamRole(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'))
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
-
+    template_id = db.Column(db.Integer, db.ForeignKey('event_template.id'), nullable=True)
+    template = db.relationship('EventTemplate', backref='team_roles')
     team = db.relationship('Team', back_populates='team_roles')
     role = db.relationship('Role', back_populates='team_roles')
 

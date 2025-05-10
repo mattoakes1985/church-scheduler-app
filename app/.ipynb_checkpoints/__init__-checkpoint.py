@@ -2,10 +2,12 @@ from flask import Flask
 from flask_admin import Admin
 from flask_migrate import Migrate
 
-from .admin import VolunteerAdminView, VolunteerTeamRoleAdmin, TeamRoleAdmin, BasicModelView, EventTeamRequirementAdmin, EventAdminView, EventTemplateAdmin
+from .admin import VolunteerAdminView, VolunteerTeamRoleAdmin, TeamRoleAdmin, BasicModelView, EventTeamRequirementAdmin, EventAdminView, EventTemplateAdmin, TemplateTeamRoleAdmin 
 
 from .forms import VolunteerForm
-from app.core.models import Volunteer, Team, Role, TeamRole, VolunteerTeamRole, Event, EventTemplate, EventTeamRequirement
+
+from app.core.models import Volunteer, Team, Role, TeamRole, VolunteerTeamRole, Event, EventTemplate, EventTeamRequirement, TemplateTeamRole
+
 from app.extensions import db
 from app.core.models import Event, Team, Role
 
@@ -50,7 +52,9 @@ def create_app():
     admin.add_view(EventAdminView(Event, db.session, category='Events'))
     admin.add_view(EventTeamRequirementAdmin(EventTeamRequirement, db.session, category='Events'))
     admin.add_view(EventTemplateAdmin(EventTemplate, db.session, category='Events'))
-    
+    admin.add_view(TemplateTeamRoleAdmin(TemplateTeamRole, db.session, category='Events'))
+
+
 
 
 
