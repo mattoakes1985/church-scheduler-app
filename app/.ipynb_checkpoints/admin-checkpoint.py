@@ -88,35 +88,31 @@ class TeamRoleAdmin(ModelView):
 
 class EventTeamRequirementAdmin(ModelView):
     form_columns = ['event', 'team', 'role']
+    column_list = ['event', 'team', 'role']
+    column_filters = ['event']  # This must be present
 
     def scaffold_form(self):
         form_class = super().scaffold_form()
-
         form_class.event = QuerySelectField(
             'Event',
             query_factory=lambda: db.session.query(Event).all(),
             get_label='name',
-            widget=Select2Widget(),
             allow_blank=True
         )
-
         form_class.team = QuerySelectField(
             'Team',
             query_factory=lambda: db.session.query(Team).all(),
             get_label='name',
-            widget=Select2Widget(),
             allow_blank=True
         )
-
         form_class.role = QuerySelectField(
             'Role',
             query_factory=lambda: db.session.query(Role).all(),
             get_label='name',
-            widget=Select2Widget(),
             allow_blank=True
         )
-
         return form_class
+
 
 class EventAdminView(ModelView):
     form_columns = ['name', 'date', 'description', 'event_type', 'template']
@@ -142,34 +138,47 @@ class EventAdminView(ModelView):
             allow_blank=True
         )
     }
-
-    def after_model_change(self, form, model, is_created):
-        if is_created and model.template:
-            # Fetch all TeamRole entries associated with the selected template
-            team_roles = db.session.query(TeamRole).filter_by(template_id=model.template.id).all()
-            for team_role in team_roles:
-                requirement = EventTeamRequirement(
-                    event_id=model.id,
-                    team_id=team_role.team_id,
-                    role_id=team_role.role_id
-                )
-                db.session.add(requirement)
-            db.session.commit()
-
     
     def after_model_change(self, form, model, is_created):
+        from flask import current_app
+    
         if is_created and model.template_id:
             template_roles = db.session.query(TemplateTeamRole).filter_by(template_id=model.template_id).all()
+            current_app.logger.info(f"🧩 Found {len(template_roles)} TemplateTeamRoles for template {model.template_id}")
 
             for tr in template_roles:
-                requirement = EventTeamRequirement(
+                current_app.logger.info(f"→ Adding {tr.team.name} - {tr.role.name}")
+                req = EventTeamRequirement(
                     event_id=model.id,
                     team_id=tr.team_id,
                     role_id=tr.role_id
-            )
-            db.session.add(requirement)
+                )
+                db.session.add(req)
 
         db.session.commit()
+        current_app.logger.info("✅ Committed EventTeamRequirement records")
+
+    
+    def after_model_save(self, form, model, is_created):
+        from flask import current_app
+        current_app.logger.info("🚨 after_model_save triggered")
+        
+        if model.template_id and not model.team_requirements:
+            template_roles = db.session.query(TemplateTeamRole).filter_by(template_id=model.template_id).all()
+            current_app.logger.info(f"Found {len(template_roles)} template roles for template {model.template_id}")
+    
+            for tr in template_roles:
+                current_app.logger.info(f"Adding team: {tr.team.name}, role: {tr.role.name}")
+                req = EventTeamRequirement(
+                    event_id=model.id,
+                    team_id=tr.team_id,
+                    role_id=tr.role_id
+                )
+                db.session.add(req)
+    
+            db.session.commit()
+            current_app.logger.info(f"Committed {len(template_roles)} EventTeamRequirements for event {model.name}")
+
 
 
 class EventTemplateAdmin(ModelView):
