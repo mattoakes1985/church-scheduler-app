@@ -61,8 +61,6 @@ class VolunteerTeamRole(db.Model):
     team = db.relationship('Team', back_populates='volunteer_team_roles')
     role = db.relationship('Role', back_populates='volunteer_team_roles')
 
-
-
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -73,6 +71,10 @@ class Event(db.Model):
     template_id = db.Column(db.Integer, db.ForeignKey('event_template.id'), nullable=True)
     template = db.relationship('EventTemplate', backref='events')
 
+    def __str__(self):
+        return f"{self.name} ({self.date.strftime('%Y-%m-%d')})"
+
+
 class EventTemplate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -80,8 +82,7 @@ class EventTemplate(db.Model):
 
     def __str__(self):
         return self.name
-
-
+        
 class EventTeamRequirement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
@@ -89,6 +90,16 @@ class EventTeamRequirement(db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
 
     event = db.relationship('Event', backref='team_requirements')  # ← Add this
+    team = db.relationship('Team')
+    role = db.relationship('Role')
+
+class TemplateTeamRole(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    template_id = db.Column(db.Integer, db.ForeignKey('event_template.id'), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
+
+    template = db.relationship('EventTemplate', backref='template_team_roles')
     team = db.relationship('Team')
     role = db.relationship('Role')
 

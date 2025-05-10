@@ -71,6 +71,10 @@ class Event(db.Model):
     template_id = db.Column(db.Integer, db.ForeignKey('event_template.id'), nullable=True)
     template = db.relationship('EventTemplate', backref='events')
 
+    def __str__(self):
+        return f"{self.name} ({self.date.strftime('%Y-%m-%d')})"
+
+
 class EventTemplate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)

@@ -8,6 +8,9 @@ from wtforms.validators import DataRequired
 
 from app.extensions import db
 from flask_admin.form import Select2Widget
+from flask_admin.contrib.sqla.filters import FilterEqual
+from flask_admin.contrib.sqla.filters import BaseSQLAFilter
+
 from flask import current_app
 
 class VolunteerAdminView(ModelView):
@@ -85,18 +88,40 @@ class TeamRoleAdmin(ModelView):
         )
         return form_class
 
+class EventNameFilter(BaseSQLAFilter):
+    def apply(self, query, value, alias=None):
+        return query.filter(EventTeamRequirement.event_id == value)
+
+    def operation(self):
+        return 'equals'
+
+    def get_options(self, view):
+        from flask import has_app_context
+    
+        if not has_app_context():
+            return []
+    
+        return [
+            (e.id, f"{e.name} ({e.date.strftime('%Y-%m-%d')})")
+            for e in db.session.query(Event).order_by(Event.date.desc()).all()
+        ]
+
+
+
 
 class EventTeamRequirementAdmin(ModelView):
     form_columns = ['event', 'team', 'role']
     column_list = ['event', 'team', 'role']
-    column_filters = ['event']  # This must be present
+    column_filters = [EventNameFilter(column=EventTeamRequirement.event_id, name='Event')]
 
+    
     def scaffold_form(self):
         form_class = super().scaffold_form()
+
         form_class.event = QuerySelectField(
             'Event',
-            query_factory=lambda: db.session.query(Event).all(),
-            get_label='name',
+            query_factory=lambda: db.session.query(Event).order_by(Event.date.desc()).all(),
+            get_label=lambda e: f"{e.name} ({e.date.strftime('%Y-%m-%d')})",
             allow_blank=True
         )
         form_class.team = QuerySelectField(
@@ -111,8 +136,11 @@ class EventTeamRequirementAdmin(ModelView):
             get_label='name',
             allow_blank=True
         )
+
         return form_class
 
+
+        
 
 class EventAdminView(ModelView):
     form_columns = ['name', 'date', 'description', 'event_type', 'template']
