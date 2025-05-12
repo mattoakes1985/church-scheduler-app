@@ -2,16 +2,22 @@ from flask_admin.contrib.sqla import ModelView
 from .forms import VolunteerForm
 from app.core.models import Volunteer, Team, Role, TeamRole, VolunteerTeamRole, Event, EventTemplate, EventTeamRequirement, TemplateTeamRole
 
-from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
+from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField 
 from wtforms import SelectField
 from wtforms.validators import DataRequired
 
 from app.extensions import db
+
 from flask_admin.form import Select2Widget
 from flask_admin.contrib.sqla.filters import FilterEqual
 from flask_admin.contrib.sqla.filters import BaseSQLAFilter
 
 from flask import current_app
+from flask import request
+
+from sqlalchemy import extract
+
+
 
 class VolunteerAdminView(ModelView):
     form = VolunteerForm
@@ -37,6 +43,9 @@ def get_teams():
 
 def get_roles():
     return db.session.query(Role).all()
+
+
+#Volunteer Team Role Section:
 
 class VolunteerTeamRoleAdmin(ModelView):
     form_columns = ['volunteer', 'team', 'role', 'is_lead']
@@ -68,6 +77,9 @@ class VolunteerTeamRoleAdmin(ModelView):
         
         return form_class
 
+
+#Team Role Admin Section
+        
 class TeamRoleAdmin(ModelView):
     form_columns = ['team', 'role']
     column_list = ['team', 'role']
@@ -87,6 +99,10 @@ class TeamRoleAdmin(ModelView):
             allow_blank=True
         )
         return form_class
+
+
+
+#Event Name Filter Section
 
 class EventNameFilter(BaseSQLAFilter):
     def apply(self, query, value, alias=None):
@@ -109,12 +125,18 @@ class EventNameFilter(BaseSQLAFilter):
 
 
 
+from flask_admin.contrib.sqla.filters import FilterEqual
+
+
+#Event Team Requirement Section
+
 class EventTeamRequirementAdmin(ModelView):
     form_columns = ['event', 'team', 'role']
     column_list = ['event', 'team', 'role']
-    column_filters = [EventNameFilter(column=EventTeamRequirement.event_id, name='Event')]
-
+    list_template = 'admin/event_team_filtered.html'
+    can_view_details = True
     
+
     def scaffold_form(self):
         form_class = super().scaffold_form()
 
@@ -122,22 +144,99 @@ class EventTeamRequirementAdmin(ModelView):
             'Event',
             query_factory=lambda: db.session.query(Event).order_by(Event.date.desc()).all(),
             get_label=lambda e: f"{e.name} ({e.date.strftime('%Y-%m-%d')})",
+            widget=Select2Widget(),
             allow_blank=True
         )
         form_class.team = QuerySelectField(
             'Team',
             query_factory=lambda: db.session.query(Team).all(),
             get_label='name',
+            widget=Select2Widget(),
             allow_blank=True
         )
         form_class.role = QuerySelectField(
             'Role',
             query_factory=lambda: db.session.query(Role).all(),
             get_label='name',
+            widget=Select2Widget(),
             allow_blank=True
         )
-
         return form_class
+
+    def get_query(self):
+        event_id = request.args.get('event_id', type=int)
+        print(f"🧪 get_query: event_id={event_id}")
+        query = super().get_query()
+        if event_id:
+            count = query.filter(EventTeamRequirement.event_id == event_id).count()
+            print(f"🧪 Matching records: {count}")
+            return query.filter(EventTeamRequirement.event_id == event_id)
+        print("🧪 No event_id selected → suppressing all rows")
+        return query.filter(False)
+
+    
+    def get_count_query(self):
+        event_id = request.args.get('event_id', type=int)
+        query = super().get_count_query()
+        if event_id:
+            return query.filter(EventTeamRequirement.event_id == event_id)
+        return query.filter(False)
+
+
+    def get_list(self, *args, **kwargs):
+        context = self._build_filter_context()
+        self._template_args.update(context)
+        return super().get_list(*args, **kwargs)
+
+    def _build_filter_context(self):
+        years = db.session.query(extract('year', Event.date))\
+            .distinct()\
+            .order_by(extract('year', Event.date).desc()).all()
+        selected_year = request.args.get('year', type=int)
+        selected_event_id = request.args.get('event_id', type=int)
+        events = []
+        if selected_year:
+            events = db.session.query(Event)\
+                .filter(extract('year', Event.date) == selected_year)\
+                .order_by(Event.date.desc()).all()
+        return {
+            'years': [y[0] for y in years],
+            'selected_year': selected_year,
+            'events': events,
+            'selected_event_id': selected_event_id
+        }
+
+    def render(self, template, **kwargs):
+        # all your filter prep
+        years = db.session.query(extract('year', Event.date))\
+            .distinct()\
+            .order_by(extract('year', Event.date).desc()).all()
+        selected_year = request.args.get('year', type=int)
+        selected_event_id = request.args.get('event_id', type=int)
+    
+        events = []
+        if selected_year:
+            events = db.session.query(Event)\
+                .filter(extract('year', Event.date) == selected_year)\
+                .order_by(Event.date.desc()).all()
+    
+        # Preload filtered rows
+        rows = []
+        if selected_event_id:
+            rows = db.session.query(EventTeamRequirement)\
+                .filter_by(event_id=selected_event_id)\
+                .all()
+    
+        kwargs.update({
+            'years': [y[0] for y in years],
+            'selected_year': selected_year,
+            'events': events,
+            'selected_event_id': selected_event_id,
+            'records': rows
+        })
+    
+        return super().render(template, **kwargs)
+
 
 
         

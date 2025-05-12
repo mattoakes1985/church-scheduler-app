@@ -51,6 +51,9 @@ def create_app():
     # Events
     admin.add_view(EventAdminView(Event, db.session, category='Events'))
     admin.add_view(EventTeamRequirementAdmin(EventTeamRequirement, db.session, category='Events'))
+
+
+
     admin.add_view(EventTemplateAdmin(EventTemplate, db.session, category='Events'))
     admin.add_view(TemplateTeamRoleAdmin(TemplateTeamRole, db.session, category='Events'))
 
