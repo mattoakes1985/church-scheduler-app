@@ -1,5 +1,6 @@
 from app.extensions import db
 from datetime import datetime
+from flask_login import UserMixin 
 
 # Association table for many-to-many Volunteer <-> Team
 volunteer_team = db.Table('volunteer_team',
@@ -7,7 +8,7 @@ volunteer_team = db.Table('volunteer_team',
     db.Column('team_id', db.Integer, db.ForeignKey('team.id'))
 )
 
-class Volunteer(db.Model):
+class Volunteer(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True)
