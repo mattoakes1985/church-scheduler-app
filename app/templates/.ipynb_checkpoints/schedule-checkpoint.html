@@ -59,7 +59,19 @@
     </div>
   </form>
 
-  {% if event_cards %}
+
+
+<a href="{{ url_for('schedule_dashboard.schedule_dashboard', year=selected_year, month=selected_month, team_id=selected_team_id) }}"
+   class="inline-block ml-auto mb-4 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+  View Dashboard
+</a>
+
+
+
+
+
+
+{% if event_cards %}
     <form method="POST">
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
 
@@ -75,8 +87,16 @@
                         class="h-7 px-3 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
                   Save
                 </button>
+
+                  
+
               </div>
 
+
+
+
+
+                
               <table class="w-full text-xs text-gray-700 dark:text-gray-200">
                 <thead class="text-[0.7rem] text-gray-500 dark:text-gray-400 border-b dark:border-gray-700">
                   <tr>
