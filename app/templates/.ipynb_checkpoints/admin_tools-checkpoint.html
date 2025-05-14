@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block title %}Admin Tools{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Admin Tools</h1>
+
+<div class="space-y-6">
+
+  <!-- Schedule Volunteers -->
+  <section>
+    <h2 class="text-xl font-semibold mb-2">Schedule Volunteers Into Events</h2>
+    <p class="text-gray-500 mb-2">Assign available volunteers to roles in upcoming events.</p>
+    <a href="/schedule" class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+      Go to Scheduler
+    </a>
+  </section>
+
+  <!-- Event Admin -->
+  <section>
+    <h2 class="text-xl font-semibold mb-2">Event Admin</h2>
+    <p class="text-gray-500 mb-2">Manage events, templates, and team-role requirements.</p>
+    <a href="/admin/event/" class="inline-block px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800">
+      Open Event Admin Panel
+    </a>
+  </section>
+
+</div>
+{% endblock %}

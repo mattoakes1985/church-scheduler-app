@@ -9,14 +9,38 @@
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+      <script>
+  // Load saved theme on page load
+  const savedTheme = localStorage.getItem("theme") || "system";
+  const html = document.documentElement;
+  html.classList.remove("light", "dark", "solarized");
+
+  if (savedTheme === "dark") html.classList.add("dark");
+  else if (savedTheme === "solarized") html.classList.add("solarized");
+  else if (window.matchMedia("(prefers-color-scheme: dark)").matches) html.classList.add("dark");
+</script>
+    
+<script src="https://unpkg.com/lucide@latest"></script>
+    
+    
     <!-- Dark mode setup -->
     <script>
       tailwind.config = {
         darkMode: 'class'
       }
     </script>
+
+    <style>
+  .dot {
+    transition: transform 0.3s ease-in-out;
+  }
+</style>
+
+
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans min-h-screen flex flex-col">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans min-h-screen">
+
+
 
     <!-- NAVBAR -->
     <header class="bg-white dark:bg-gray-800 shadow-md">
@@ -25,8 +49,29 @@
             <nav class="space-x-4 text-sm sm:text-base">
                 <a href="/volunteer-portal" class="hover:underline">Volunteer</a>
                 <a href="/worship-lead" class="hover:underline">Worship Lead</a>
-                <a href="/admin-tools" class="hover:underline">Admin</a>
+                <a href="/admin-tools" class="hover:underline">Team Admin</a>
+                <a href="/admin" class="hover:underline">Event Admin</a>
             </nav>
+            <div class="space-x-2">
+              <div class="flex items-center space-x-2">
+                  <i data-lucide="sun" class="w-5 h-5 text-gray-500"></i>
+
+                
+                  <label for="themeSwitch" class="relative inline-block w-10 h-6">
+                    <input type="checkbox" id="themeSwitch" class="sr-only peer">
+                    <div class="block bg-gray-300 dark:bg-gray-600 w-full h-full rounded-full peer-checked:bg-gray-600"></div>
+                    <div class="dot absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full transition peer-checked:translate-x-4"></div>
+                  </label>
+                
+                  <i data-lucide="moon" class="w-5 h-5 text-gray-500"></i>
+
+                </div>
+
+
+
+            
+            </div>
+
         </div>
     </header>
 
@@ -40,5 +85,33 @@
         Church Scheduler App &copy; {{ current_year | default(2025) }}
     </footer>
 
+<script>
+  const switchInput = document.getElementById("themeSwitch");
+
+  function applyThemeFromStorage() {
+    const savedTheme = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const theme = savedTheme || (prefersDark ? "dark" : "light");
+
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    switchInput.checked = (theme === "dark");
+  }
+
+  function toggleThemeFromSwitch() {
+    const theme = switchInput.checked ? "dark" : "light";
+    localStorage.setItem("theme", theme);
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }
+
+  switchInput.addEventListener("change", toggleThemeFromSwitch);
+  applyThemeFromStorage();
+
+  // Load Lucide icons
+  lucide.createIcons();
+</script>
+
+
+
+    
 </body>
 </html>
