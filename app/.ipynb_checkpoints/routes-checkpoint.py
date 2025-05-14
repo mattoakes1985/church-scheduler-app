@@ -35,3 +35,6 @@ def event_admin():
     return render_template("admin/event_admin.html")
 
 
+@main.route("/worship-lead")
+def worship_lead():
+    return render_template("worship_lead.html")
