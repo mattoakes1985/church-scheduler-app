@@ -3,11 +3,16 @@
 {% block title %}Event Admin{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Event Admin</h1>
+  <h1 class="text-2xl font-bold mb-4">Event Admin</h1>
 
-<iframe
-  src="/admin/"
-  class="w-full h-[85vh] border rounded bg-white dark:bg-gray-900"
-  style="min-height: 600px;"
-></iframe>
+  <p class="mb-4 text-gray-600 dark:text-gray-400 text-sm">
+    Use the tools below to manage events, volunteers, templates, and team-role requirements.
+    Select an option from the sidebar to get started.
+  </p>
+
+  <iframe
+    src="/admin/"
+    class="w-full h-[85vh] border dark:border-gray-700 bg-white dark:bg-gray-900 rounded shadow"
+    style="min-height: 600px;"
+  ></iframe>
 {% endblock %}

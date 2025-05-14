@@ -1,61 +1,68 @@
 {% extends "layout.html" %}
 
-{% block title %}Schedule Volunteers Into Events{% endblock %}
+{% block title %}Schedule Volunteers{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Schedule Volunteers Into Events</h1>
+  <h1 class="text-2xl font-bold mb-6">Schedule Volunteers Into Events</h1>
 
-<!-- Event Selection -->
-<section class="mb-8">
-  <h2 class="text-lg font-semibold mb-2">Select Event</h2>
-  <select class="w-full md:w-1/2 p-2 border rounded">
-    <option value="">-- Choose an Event --</option>
-    <option value="1">Sunday 10:30am - Worship Service</option>
-    <option value="2">Saturday 7pm - Youth Night</option>
-  </select>
-</section>
+  <form method="GET">
 
-<!-- Team Role Assignment -->
-<section class="mb-8">
-  <h2 class="text-lg font-semibold mb-2">Assign Volunteers to Roles</h2>
-  <div class="grid md:grid-cols-2 gap-6">
-
-    <!-- Example Role Slot -->
-    <div class="border p-4 rounded bg-white dark:bg-gray-800">
-      <h3 class="font-semibold mb-2">Worship Leader</h3>
-      <select class="w-full p-2 border rounded">
-        <option value="">-- Select Volunteer --</option>
-        <option>Sarah J</option>
-        <option>Ben O</option>
+    <!-- Year Dropdown -->
+    <div class="mb-4">
+      <label for="year-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Year</label>
+      <select name="year" id="year-select"
+              class="w-full md:w-1/2 p-2 border rounded text-black bg-white
+               dark:text-white dark:bg-gray-800"
+              hx-get="/schedule/months"
+              hx-target="#month-wrapper"
+              hx-include="#year-select"
+              hx-trigger="change">
+        <option value="">-- All Years --</option>
+        {% for y in years %}
+          <option value="{{ y[0] }}" {% if y[0] == selected_year %}selected{% endif %}>{{ y[0] }}</option>
+        {% endfor %}
       </select>
     </div>
 
-    <div class="border p-4 rounded bg-white dark:bg-gray-800">
-      <h3 class="font-semibold mb-2">Guitar</h3>
-      <select class="w-full p-2 border rounded">
-        <option value="">-- Select Volunteer --</option>
-        <option>Matt R</option>
-        <option>Emma K</option>
-      </select>
+    <!-- Month Dropdown (HTMX will replace this) -->
+    <div id="month-wrapper" class="mb-4">
+      {% if months %}
+        <label for="month-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Month</label>
+        <select name="month" id="month-select"
+                class="w-full md:w-1/2 p-2 border rounded text-black bg-white
+               dark:text-white dark:bg-gray-800"
+                hx-get="/schedule/events"
+                hx-target="#event-select-wrapper"
+                hx-include="#year-select, #month-select"
+                hx-trigger="change">
+          <option value="">-- All Months --</option>
+          {% for m in months %}
+            <option value="{{ m[0] }}" {% if m[0] == selected_month %}selected{% endif %}>{{ m[1] }}</option>
+          {% endfor %}
+        </select>
+      {% endif %}
     </div>
 
-    <div class="border p-4 rounded bg-white dark:bg-gray-800">
-      <h3 class="font-semibold mb-2">AV Desk</h3>
-      <select class="w-full p-2 border rounded">
-        <option value="">-- Select Volunteer --</option>
-        <option>Dan P</option>
-        <option>Jess L</option>
-      </select>
+    <!-- Event Dropdown (HTMX will replace this) -->
+    <div id="event-select-wrapper" class="mb-6">
+      {% if events %}
+        <label for="event-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Event</label>
+        <select name="event_id" id="event-select"
+                class="w-full md:w-1/2 p-2 border rounded text-black bg-white
+               dark:text-white dark:bg-gray-800"">
+          <option value="">-- Choose an Event --</option>
+          {% for event in events %}
+            <option value="{{ event.id }}" {% if event.id == selected_event_id %}selected{% endif %}>
+              {{ event.name }} ({{ event.date.strftime('%Y-%m-%d') }})
+            </option>
+          {% endfor %}
+        </select>
+      {% endif %}
     </div>
 
-  </div>
-</section>
-
-<!-- Save Button -->
-<section>
-  <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-    Save Assignments
-  </button>
-</section>
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      Load Roles
+    </button>
+  </form>
 
 {% endblock %}

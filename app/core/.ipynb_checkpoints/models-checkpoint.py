@@ -1,5 +1,6 @@
 from app.extensions import db
 from datetime import datetime
+from flask_login import UserMixin 
 
 # Association table for many-to-many Volunteer <-> Team
 volunteer_team = db.Table('volunteer_team',
@@ -7,7 +8,7 @@ volunteer_team = db.Table('volunteer_team',
     db.Column('team_id', db.Integer, db.ForeignKey('team.id'))
 )
 
-class Volunteer(db.Model):
+class Volunteer(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True)
@@ -102,4 +103,28 @@ class TemplateTeamRole(db.Model):
     template = db.relationship('EventTemplate', backref='template_team_roles')
     team = db.relationship('Team')
     role = db.relationship('Role')
+
+
+class VolunteerAvailability(db.Model):
+    __tablename__ = 'volunteer_availability'
+    id = db.Column(db.Integer, primary_key=True)
+    volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+
+    volunteer = db.relationship('Volunteer', backref='availabilities')
+    event = db.relationship('Event', backref='volunteer_availability')
+
+
+class VolunteerAssignment(db.Model):
+    __tablename__ = 'volunteer_assignment'
+    id = db.Column(db.Integer, primary_key=True)
+    volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
+
+    volunteer = db.relationship('Volunteer', backref='assignments')
+    event = db.relationship('Event', backref='assignments')
+    team = db.relationship('Team', backref='assignments')
+    role = db.relationship('Role', backref='assignments')
 

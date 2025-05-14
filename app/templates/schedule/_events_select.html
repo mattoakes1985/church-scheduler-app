@@ -1,0 +1,9 @@
+{# templates/schedule/_events_select.html #}
+<select name="event_id" id="event_id" class="w-full md:w-1/2 p-2 border rounded text-black dark:text-white">
+  <option value="">-- Choose an Event --</option>
+  {% for event in events %}
+    <option value="{{ event.id }}" {% if event.id == selected_event_id %}selected{% endif %}>
+      {{ event.name }} ({{ event.date.strftime('%Y-%m-%d') }})
+    </option>
+  {% endfor %}
+</select>

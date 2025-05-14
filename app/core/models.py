@@ -104,3 +104,27 @@ class TemplateTeamRole(db.Model):
     team = db.relationship('Team')
     role = db.relationship('Role')
 
+
+class VolunteerAvailability(db.Model):
+    __tablename__ = 'volunteer_availability'
+    id = db.Column(db.Integer, primary_key=True)
+    volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+
+    volunteer = db.relationship('Volunteer', backref='availabilities')
+    event = db.relationship('Event', backref='volunteer_availability')
+
+
+class VolunteerAssignment(db.Model):
+    __tablename__ = 'volunteer_assignment'
+    id = db.Column(db.Integer, primary_key=True)
+    volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
+
+    volunteer = db.relationship('Volunteer', backref='assignments')
+    event = db.relationship('Event', backref='assignments')
+    team = db.relationship('Team', backref='assignments')
+    role = db.relationship('Role', backref='assignments')
+

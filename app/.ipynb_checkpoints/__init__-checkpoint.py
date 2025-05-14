@@ -66,6 +66,11 @@ def create_app():
     admin.add_view(EventTemplateAdmin(EventTemplate, db.session, category='Events'))
     admin.add_view(TemplateTeamRoleAdmin(TemplateTeamRole, db.session, category='Events'))
 
+
+    from app.views.schedule import schedule_bp
+    app.register_blueprint(schedule_bp)
+
+    
     from .routes import main
     app.register_blueprint(main)
 

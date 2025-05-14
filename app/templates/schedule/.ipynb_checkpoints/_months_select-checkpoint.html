@@ -1,0 +1,8 @@
+{# templates/schedule/_months_select.html #}
+<select name="month" id="month" class="w-full md:w-1/2 p-2 border rounded text-black dark:text-white"
+        hx-get="/schedule/events" hx-target="#event-select" hx-include="#year-select, #month-select" hx-trigger="change">
+  <option value="">-- All Months --</option>
+  {% for m in months %}
+    <option value="{{ m[0] }}" {% if m[0] == selected_month %}selected{% endif %}>{{ m[1] }}</option>
+  {% endfor %}
+</select>
