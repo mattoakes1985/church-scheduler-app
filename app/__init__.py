@@ -69,6 +69,10 @@ def create_app():
 
     from app.views.schedule import schedule_bp
     app.register_blueprint(schedule_bp)
+    
+    from app.views.schedule_dashboard import schedule_dashboard_bp
+    app.register_blueprint(schedule_dashboard_bp)
+
 
     
     from .routes import main
