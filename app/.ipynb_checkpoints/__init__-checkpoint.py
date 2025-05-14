@@ -73,6 +73,8 @@ def create_app():
     from app.views.schedule_dashboard import schedule_dashboard_bp
     app.register_blueprint(schedule_dashboard_bp)
 
+    from app.views.availability import availability_bp
+    app.register_blueprint(availability_bp)
 
     
     from .routes import main
