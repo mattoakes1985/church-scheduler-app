@@ -1,10 +1,11 @@
 from flask import Blueprint, render_template, request, redirect, url_for
+from datetime import datetime, timedelta
 from app.extensions import db
-from datetime import datetime
 from app.core.models import (
     Volunteer, Event, Team, Role,
     VolunteerTeamRole, VolunteerAvailability
 )
+
 
 availability_bp = Blueprint('availability', __name__, url_prefix='/availability')
 
@@ -32,6 +33,8 @@ def availability_page():
         s.event_id: {"status": s.status, "team_id": s.team_id}
         for s in submitted
     }
+    
+
 
 
     return render_template("volunteer/availability.html",
