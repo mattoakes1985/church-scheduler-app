@@ -2,7 +2,7 @@ from flask import Flask
 from flask_admin import Admin
 from flask_migrate import Migrate
 
-from .admin import VolunteerAdminView, VolunteerTeamRoleAdmin, TeamRoleAdmin, BasicModelView, EventTeamRequirementAdmin, EventAdminView, EventTemplateAdmin, TemplateTeamRoleAdmin 
+from .admin import VolunteerAdminView, VolunteerTeamRoleAdmin, TeamRoleAdmin, BasicModelView, EventTeamRequirementAdmin, EventAdminView, EventTemplateAdmin, TemplateTeamRoleAdmin, AdminHomeView 
 
 from .forms import VolunteerForm
 
@@ -42,9 +42,13 @@ def create_app():
     admin = Admin(
         app,
         name="Church Scheduler Admin",
-        template_mode='bootstrap4',
-        base_template='admin/my_base.html'
+        #index_view=AdminHomeView(),
+        template_mode='bootstrap4'
     )
+
+
+
+
 
     # Dashboard (custom)
     admin.add_view(DashboardView())

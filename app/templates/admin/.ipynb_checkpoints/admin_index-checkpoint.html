@@ -1,0 +1,31 @@
+{% extends 'layout.html' %}
+
+{% block title %}Admin Home{% endblock %}
+
+{% block content %}
+  <h1 class="text-2xl font-bold mb-6">Admin Dashboard</h1>
+
+  {% set categories = {} %}
+  {% for item in admin_view.admin.menu() if item.is_accessible() and item.url %}
+    {% set category = item.category or 'Uncategorized' %}
+    {% if category not in categories %}
+      {% set _ = categories.update({category: []}) %}
+    {% endif %}
+    {% set _ = categories[category].append(item) %}
+  {% endfor %}
+
+  {% for category, items in categories.items() %}
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold mb-2">{{ category }}</h2>
+      <ul class="space-y-1">
+        {% for item in items %}
+          <li>
+            <a href="{{ item.url }}" class="block px-4 py-2 rounded bg-white dark:bg-gray-800 border dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+              {{ item.name }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endfor %}
+{% endblock %}

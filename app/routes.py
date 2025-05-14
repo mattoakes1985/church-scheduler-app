@@ -26,7 +26,12 @@ def admin_tools():
         return redirect(url_for("main.index"))
     return render_template("admin_tools.html")
 
-
 @main.route("/schedule")
 def schedule_volunteers():
     return render_template("schedule.html")
+
+@main.route("/event-admin")
+def event_admin():
+    return render_template("admin/event_admin.html")
+
+

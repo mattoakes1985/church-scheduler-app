@@ -8,7 +8,9 @@ from wtforms.validators import DataRequired
 
 from app.extensions import db
 
+from flask_admin import AdminIndexView, expose
 from flask_admin.form import Select2Widget
+
 from flask_admin.contrib.sqla.filters import FilterEqual
 from flask_admin.contrib.sqla.filters import BaseSQLAFilter
 
@@ -18,6 +20,10 @@ from flask import request
 from sqlalchemy import extract
 
 
+class AdminHomeView(AdminIndexView):
+    @expose('/')
+    def index(self):
+        return self.render('admin/event_admin.html')
 
 class VolunteerAdminView(ModelView):
     form = VolunteerForm
