@@ -25,3 +25,8 @@ def admin_tools():
         flash("Access denied.", "error")
         return redirect(url_for("main.index"))
     return render_template("admin_tools.html")
+
+
+@main.route("/schedule")
+def schedule_volunteers():
+    return render_template("schedule.html")

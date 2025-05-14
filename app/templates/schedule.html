@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block title %}Schedule Volunteers Into Events{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Schedule Volunteers Into Events</h1>
+
+<!-- Event Selection -->
+<section class="mb-8">
+  <h2 class="text-lg font-semibold mb-2">Select Event</h2>
+  <select class="w-full md:w-1/2 p-2 border rounded">
+    <option value="">-- Choose an Event --</option>
+    <option value="1">Sunday 10:30am - Worship Service</option>
+    <option value="2">Saturday 7pm - Youth Night</option>
+  </select>
+</section>
+
+<!-- Team Role Assignment -->
+<section class="mb-8">
+  <h2 class="text-lg font-semibold mb-2">Assign Volunteers to Roles</h2>
+  <div class="grid md:grid-cols-2 gap-6">
+
+    <!-- Example Role Slot -->
+    <div class="border p-4 rounded bg-white dark:bg-gray-800">
+      <h3 class="font-semibold mb-2">Worship Leader</h3>
+      <select class="w-full p-2 border rounded">
+        <option value="">-- Select Volunteer --</option>
+        <option>Sarah J</option>
+        <option>Ben O</option>
+      </select>
+    </div>
+
+    <div class="border p-4 rounded bg-white dark:bg-gray-800">
+      <h3 class="font-semibold mb-2">Guitar</h3>
+      <select class="w-full p-2 border rounded">
+        <option value="">-- Select Volunteer --</option>
+        <option>Matt R</option>
+        <option>Emma K</option>
+      </select>
+    </div>
+
+    <div class="border p-4 rounded bg-white dark:bg-gray-800">
+      <h3 class="font-semibold mb-2">AV Desk</h3>
+      <select class="w-full p-2 border rounded">
+        <option value="">-- Select Volunteer --</option>
+        <option>Dan P</option>
+        <option>Jess L</option>
+      </select>
+    </div>
+
+  </div>
+</section>
+
+<!-- Save Button -->
+<section>
+  <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+    Save Assignments
+  </button>
+</section>
+
+{% endblock %}
