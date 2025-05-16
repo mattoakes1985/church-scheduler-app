@@ -69,11 +69,14 @@ class Event(db.Model):
     description = db.Column(db.Text, nullable=True)
     event_type = db.Column(db.String(50), nullable=False)
 
+    availability_locked = db.Column(db.Boolean, default=False) 
+
     template_id = db.Column(db.Integer, db.ForeignKey('event_template.id'), nullable=True)
     template = db.relationship('EventTemplate', backref='events')
 
     def __str__(self):
         return f"{self.name} ({self.date.strftime('%Y-%m-%d')})"
+
 
 
 class EventTemplate(db.Model):

@@ -11,56 +11,78 @@
     <form method="POST">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {% for event in events %}
-          <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md p-4 text-sm">
+          {% set response = availability_map.get(event.id) %}
+          <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md p-4 text-sm {% if event.availability_locked %}opacity-60{% endif %}">
             <h2 class="text-md font-semibold mb-2">
               {{ event.name }}<br>
               <span class="text-xs text-gray-500">{{ event.date.strftime('%A, %d %B %Y') }}</span>
             </h2>
 
-            {% set response = availability_map.get(event.id) %}
-
-            {% if response %}
-              <div class="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                <p><strong>Team:</strong>
-                  {{ teams | selectattr('id', 'equalto', response.team_id) | first | attr('name') }}</p>
-                <p><strong>Response:</strong> {{ response.status | capitalize }}</p>
-                <form method="POST" class="mt-2">
-                  <input type="hidden" name="delete_event_id" value="{{ event.id }}">
-                  <button type="submit" class="text-xs text-red-600 hover:underline">Remove</button>
-                </form>
-              </div>
+            {% if event.availability_locked %}
+              <p class="text-gray-500 italic">Availability locked</p>
+              {% if response %}
+                <p class="mt-2 text-sm">
+                  <strong>Team:</strong> {{ teams | selectattr('id', 'equalto', response.team_id) | first | attr('name') }}<br>
+                  <strong>Response:</strong> {{ response.status | capitalize }}
+                </p>
+              {% endif %}
             {% else %}
-              <label for="team_{{ event.id }}" class="block mb-2 text-gray-700 dark:text-gray-300">Select Team</label>
-              <select name="team_{{ event.id }}" id="team_{{ event.id }}"
-                      class="w-full mb-3 p-2 rounded-md appearance-none bg-white dark:bg-gray-900 text-black dark:text-white border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                <option value="">-- Choose a team --</option>
-                {% for team in teams %}
-                  <option value="{{ team.id }}"
-                          {% if response and response.team_id == team.id %}selected{% endif %}>{{ team.name }}</option>
-                {% endfor %}
-              </select>
+              {% if response %}
+                <div class="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                  <p><strong>Team:</strong>
+                    {{ teams | selectattr('id', 'equalto', response.team_id) | first | attr('name') }}</p>
+                  <p><strong>Response:</strong> {{ response.status | capitalize }}</p>
+                  <form method="POST" class="mt-2">
+                    <input type="hidden" name="delete_event_id" value="{{ event.id }}">
+                    <button type="submit" class="text-xs text-red-600 hover:underline">Remove</button>
+                  </form>
+                </div>
+              {% else %}
+                <label for="team_{{ event.id }}" class="block mb-2 text-gray-700 dark:text-gray-300">Select Team</label>
+                <select name="team_{{ event.id }}" id="team_{{ event.id }}"
+                        class="w-full mb-3 p-2 rounded-md appearance-none bg-white dark:bg-gray-900 text-black dark:text-white border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                  <option value="">-- Choose a team --</option>
+                  {% for team in teams %}
+                    <option value="{{ team.id }}"
+                            {% if response and response.team_id == team.id %}selected{% endif %}>{{ team.name }}</option>
+                  {% endfor %}
+                </select>
 
-              <div class="flex justify-between gap-2">
-                <button name="availability_{{ event.id }}" value="yes" type="submit"
-                        class="flex-1 h-9 px-3 rounded-md text-sm border
-                               bg-green-100 text-green-700 border-green-300 hover:bg-green-200 focus:outline-none">
-                  Yes
-                </button>
-                <button name="availability_{{ event.id }}" value="no" type="submit"
-                        class="flex-1 h-9 px-3 rounded-md text-sm border
-                               bg-red-100 text-red-700 border-red-300 hover:bg-red-200 focus:outline-none">
-                  No
-                </button>
-                <button name="availability_{{ event.id }}" value="maybe" type="submit"
-                        class="flex-1 h-9 px-3 rounded-md text-sm border
-                               bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 focus:outline-none">
-                  Don't Know
-                </button>
-              </div>
+                <div class="flex justify-between gap-2">
+                  <button name="availability_{{ event.id }}" value="yes" type="submit"
+                          class="flex-1 h-9 px-3 rounded-md text-sm border bg-green-100 text-green-700 border-green-300 hover:bg-green-200 focus:outline-none">
+                    Yes
+                  </button>
+                  <button name="availability_{{ event.id }}" value="no" type="submit"
+                          class="flex-1 h-9 px-3 rounded-md text-sm border bg-red-100 text-red-700 border-red-300 hover:bg-red-200 focus:outline-none">
+                    No
+                  </button>
+                  <button name="availability_{{ event.id }}" value="maybe" type="submit"
+                          class="flex-1 h-9 px-3 rounded-md text-sm border bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 focus:outline-none">
+                    Don't Know
+                  </button>
+                </div>
+              {% endif %}
             {% endif %}
           </div>
         {% endfor %}
       </div>
     </form>
+
+    <!-- Pagination controls -->
+    <div class="mt-8 flex justify-center gap-4">
+      {% if pagination.has_prev %}
+        <a href="{{ url_for('availability.availability_page', page=pagination.prev_num) }}"
+           class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-sm text-gray-800 dark:text-white rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+          ← Previous
+        </a>
+      {% endif %}
+      {% if pagination.has_next %}
+        <a href="{{ url_for('availability.availability_page', page=pagination.next_num) }}"
+           class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-sm text-gray-800 dark:text-white rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+          Next →
+        </a>
+      {% endif %}
+    </div>
   {% endif %}
 {% endblock %}

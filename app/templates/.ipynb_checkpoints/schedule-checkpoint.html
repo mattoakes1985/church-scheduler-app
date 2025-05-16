@@ -79,18 +79,31 @@
           {% if event.id in event_cards %}
             <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-sm p-3 text-xs w-80">
               <div class="flex justify-between items-center mb-2">
-                <h2 class="font-semibold text-gray-800 dark:text-gray-100 text-sm">
-                  {{ event.name }}<br>
-                  <span class="text-xs text-gray-500 dark:text-gray-400">{{ event.date.strftime('%Y-%m-%d') }}</span>
-                </h2>
-                <button type="submit"
-                        class="h-7 px-3 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
-                  Save
-                </button>
+  <div>
+    <h2 class="font-semibold text-gray-800 dark:text-gray-100 text-sm">
+      {{ event.name }}
+    </h2>
+    <p class="text-xs text-gray-500 dark:text-gray-400">{{ event.date.strftime('%Y-%m-%d') }}</p>
+  </div>
+  <div class="flex gap-1 items-center">
+    <button type="submit"
+            class="h-7 px-3 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
+      Save
+    </button>
+    <form method="POST" action="{{ url_for('schedule.toggle_event_lock', event_id=event.id) }}">
+      <button type="submit"
+              class="h-7 px-2 rounded border text-xs
+                     {% if event.availability_locked %}
+                       bg-red-100 dark:bg-red-700 text-red-700 dark:text-white border-red-300
+                     {% else %}
+                       bg-green-100 dark:bg-green-700 text-green-700 dark:text-white border-green-300
+                     {% endif %}">
+        {% if event.availability_locked %}Unlock{% else %}Lock{% endif %}
+      </button>
+    </form>
+  </div>
+</div>
 
-                  
-
-              </div>
 
 
 

@@ -70,7 +70,6 @@ def schedule_page():
 
                     if assigned:
                         assignments[req.role_id] = assigned.volunteer_id
-                
 
                 event_cards[event.id] = {
                     "requirements": requirements,
@@ -79,7 +78,6 @@ def schedule_page():
                 }
 
     if request.method == "POST":
-        # Save logic for multi-event cards
         for key, val in request.form.items():
             if key.startswith("assignment_"):
                 parts = key.split("_")
@@ -118,4 +116,11 @@ def schedule_page():
         selected_month=selected_month,
         selected_team_id=selected_team_id,
         event_cards=event_cards
-                          )
+    )
+
+@schedule_bp.route("/toggle-lock/<int:event_id>", methods=["POST"])
+def toggle_event_lock(event_id):
+    event = Event.query.get_or_404(event_id)
+    event.availability_locked = not event.availability_locked
+    db.session.commit()
+    return redirect(request.referrer or url_for("schedule.schedule_page"))
