@@ -79,7 +79,7 @@ def create_app():
     from app.views.availability import availability_bp
     app.register_blueprint(availability_bp)
 
-    from app.views.auth_routes import auth_bp
+    from app.views.auth import auth_bp
     app.register_blueprint(auth_bp)
 
     
