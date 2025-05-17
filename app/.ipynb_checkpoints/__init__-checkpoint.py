@@ -75,4 +75,11 @@ def create_app():
     from .routes import main
     app.register_blueprint(main)
 
+    @app.errorhandler(403)
+    def forbidden(error):
+        from flask import flash, redirect, url_for
+        flash("You do not have permission to access that page.", "warning")
+        return redirect(url_for('main.volunteer_portal'))
+
+
     return app
