@@ -12,13 +12,10 @@ def index():
     return render_template('index.html')
 
 @main.route('/volunteer-portal')
-#@login_required
+@login_required
 def volunteer_portal():
     return render_template('volunteer_portal.html', current_year=datetime.now().year)
 
-@main.route("/login")
-def login():
-    return "<h1>Login page (coming soon)</h1>"
 
 def admin_tools():
     if not current_user.is_authenticated or not current_user.is_admin:

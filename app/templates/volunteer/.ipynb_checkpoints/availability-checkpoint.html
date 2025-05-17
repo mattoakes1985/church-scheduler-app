@@ -32,10 +32,11 @@
                   <p><strong>Team:</strong>
                     {{ teams | selectattr('id', 'equalto', response.team_id) | first | attr('name') }}</p>
                   <p><strong>Response:</strong> {{ response.status | capitalize }}</p>
-                  <form method="POST" class="mt-2">
-                    <input type="hidden" name="delete_event_id" value="{{ event.id }}">
-                    <button type="submit" class="text-xs text-red-600 hover:underline">Remove</button>
-                  </form>
+                  <button name="delete_event_id" value="{{ event.id }}" type="submit"
+        class="text-xs text-red-600 hover:underline mt-2">
+  Remove
+</button>
+
                 </div>
               {% else %}
                 <label for="team_{{ event.id }}" class="block mb-2 text-gray-700 dark:text-gray-300">Select Team</label>

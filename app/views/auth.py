@@ -20,6 +20,8 @@ def login():
             return redirect(url_for("availability.availability_page"))
         flash("Login failed. Check email.", "danger")
     return render_template("auth/login.html")
+    #return redirect(url_for("main.volunteer_portal"))
+
 
 @auth_bp.route("/logout", methods=["POST"])
 @login_required

@@ -15,7 +15,10 @@ class Volunteer(db.Model, UserMixin):
     phone = db.Column(db.String(20))
 
     teams = db.relationship('Team', secondary=volunteer_team, back_populates='volunteers')
-    volunteer_roles = db.relationship('VolunteerTeamRole', back_populates='volunteer', cascade='all, delete-orphan')
+    volunteer_roles = db.relationship('VolunteerTeamRole', back_populates='volunteer')
+    availabilities = db.relationship('VolunteerAvailability', back_populates='volunteer')
+
+
 
     def __str__(self):
         return self.name
@@ -110,12 +113,19 @@ class TemplateTeamRole(db.Model):
 
 class VolunteerAvailability(db.Model):
     __tablename__ = 'volunteer_availability'
+    __table_args__ = (
+        db.UniqueConstraint('volunteer_id', 'event_id', name='uix_volunteer_event'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
+    status = db.Column(db.String(10), nullable=False)  # 'yes', 'no', 'maybe'
 
-    volunteer = db.relationship('Volunteer', backref='availabilities')
+    volunteer = db.relationship('Volunteer', back_populates='availabilities')
     event = db.relationship('Event', backref='volunteer_availability')
+    team = db.relationship('Team')
+
 
 
 class VolunteerAssignment(db.Model):

@@ -12,8 +12,8 @@ from app.core.models import Volunteer, Team, Role, TeamRole, VolunteerTeamRole, 
 from app.extensions import db, login_manager
 from app.core.models import Event, Team, Role
 
-from .extensions import db, login_manager
-
+from app.extensions import login_manager
+from app.views.auth import auth_bp 
 
 
 def create_app():
@@ -40,6 +40,7 @@ def create_app():
         from .core import models
         from .dashboard import DashboardView
 
+ 
 
     # Set up admin
     admin = Admin(
@@ -49,9 +50,9 @@ def create_app():
         template_mode='bootstrap4'
     )
 
-
-
-
+    app.register_blueprint(auth_bp)
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'  # <-- Make sure this comes AFTER the blueprint is registered
 
     # Dashboard (custom)
     admin.add_view(DashboardView())
@@ -79,8 +80,7 @@ def create_app():
     from app.views.availability import availability_bp
     app.register_blueprint(availability_bp)
 
-    from app.views.auth import auth_bp
-    app.register_blueprint(auth_bp)
+
 
     
     from .routes import main

@@ -5,14 +5,18 @@ from app.core.models import (
     Volunteer, Event, Team, Role,
     VolunteerTeamRole, VolunteerAvailability
 )
+from flask_login import login_required, current_user
+
+
 
 
 availability_bp = Blueprint('availability', __name__, url_prefix='/availability')
 
 @availability_bp.route("/", methods=["GET", "POST"])
+@login_required
 def availability_page():
     from datetime import timedelta
-    volunteer = Volunteer.query.first()
+    volunteer = current_user
     if not volunteer:
         return "No volunteer available in the database."
 
@@ -65,22 +69,32 @@ def availability_page():
                     volunteer_id=volunteer.id,
                     event_id=event_id
                 ).first()
-
+                
                 if existing:
                     existing.status = status
                     existing.team_id = team_id
                 else:
                     db.session.add(VolunteerAvailability(
                         volunteer_id=volunteer.id,
-                        event_id=event_id,
+                        event_id=event.id,
                         team_id=team_id,
                         status=status
                     ))
 
+
         db.session.commit()
+        print("AFTER COMMIT:")
+        for row in VolunteerAvailability.query.all():
+            print(row.event_id, row.volunteer_id, row.status)
+
         return redirect(url_for("availability.availability_page", page=page))
 
     submitted = VolunteerAvailability.query.filter_by(volunteer_id=volunteer.id).all()
+    print("Saved availability in DB:")
+    for row in VolunteerAvailability.query.all():
+        print(row.event_id, row.volunteer_id, row.status)
+
+    
     availability_map = {
         s.event_id: {"status": s.status, "team_id": s.team_id}
         for s in submitted
