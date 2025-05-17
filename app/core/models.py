@@ -1,6 +1,7 @@
 from app.extensions import db
 from datetime import datetime
 from flask_login import UserMixin 
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Association table for many-to-many Volunteer <-> Team
 volunteer_team = db.Table('volunteer_team',
@@ -13,11 +14,15 @@ class Volunteer(db.Model, UserMixin):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True)
     phone = db.Column(db.String(20))
-
+    password_hash = db.Column(db.String(128))  # Make sure this exists!
     teams = db.relationship('Team', secondary=volunteer_team, back_populates='volunteers')
     volunteer_roles = db.relationship('VolunteerTeamRole', back_populates='volunteer')
     availabilities = db.relationship('VolunteerAvailability', back_populates='volunteer')
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
 
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 
     def __str__(self):
