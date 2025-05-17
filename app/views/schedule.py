@@ -56,11 +56,14 @@ def schedule_page():
                 assignments = {}
 
                 for req in requirements:
-                    eligible[req.role_id] = db.session.query(Volunteer).join(VolunteerTeamRole).filter(
-                        Volunteer.id.in_(available_ids),
+                    eligible[req.role_id] = db.session.query(Volunteer).join(VolunteerTeamRole).join(VolunteerAvailability).filter(
+                        VolunteerAvailability.event_id == event.id,
+                        VolunteerAvailability.status == 'yes',
                         VolunteerTeamRole.team_id == selected_team_id,
-                        VolunteerTeamRole.role_id == req.role_id
+                        VolunteerTeamRole.role_id == req.role_id,
+                        Volunteer.id == VolunteerAvailability.volunteer_id
                     ).all()
+
 
                     assigned = VolunteerAssignment.query.filter_by(
                         event_id=event.id,
