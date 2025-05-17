@@ -5,10 +5,16 @@ from app.core.models import (
     Event, Team, Role, Volunteer, VolunteerAvailability,
     EventTeamRequirement, VolunteerTeamRole, VolunteerAssignment
 )
+from app.decorators import admin_required
+
+
 
 schedule_bp = Blueprint('schedule', __name__, url_prefix='/schedule')
 
 @schedule_bp.route("/", methods=["GET", "POST"])
+
+@admin_required
+
 def schedule_page():
     selected_year = request.values.get("year", type=int)
     selected_month = request.values.get("month", type=int)

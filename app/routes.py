@@ -3,6 +3,7 @@ from flask_login import login_required
 from datetime import datetime
 from flask import redirect, url_for, flash
 from flask_login import current_user
+from app.decorators import admin_required
 
 
 main = Blueprint('main', __name__)
@@ -28,6 +29,7 @@ def schedule_volunteers():
     return render_template("schedule.html")
 
 @main.route("/event-admin")
+@admin_required
 def event_admin():
     return render_template("admin/event_admin.html")
 

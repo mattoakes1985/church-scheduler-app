@@ -18,6 +18,8 @@ from flask import current_app
 from flask import request
 
 from sqlalchemy import extract
+from app.decorators import admin_required
+
 
 
 class AdminHomeView(AdminIndexView):

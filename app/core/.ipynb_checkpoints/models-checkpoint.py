@@ -18,6 +18,8 @@ class Volunteer(db.Model, UserMixin):
     teams = db.relationship('Team', secondary=volunteer_team, back_populates='volunteers')
     volunteer_roles = db.relationship('VolunteerTeamRole', back_populates='volunteer')
     availabilities = db.relationship('VolunteerAvailability', back_populates='volunteer')
+    is_admin = db.Column(db.Boolean, default=False)
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
