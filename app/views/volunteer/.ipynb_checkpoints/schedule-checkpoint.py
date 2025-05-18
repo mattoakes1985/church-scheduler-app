@@ -44,10 +44,20 @@ def schedule():
         for a in assignments:
             assignment_matrix[(a.event_id, a.role_id)] = a.volunteer
 
+    # Song map
+    from app.core.models import EventSong  # Add to top if not already
+    songs_by_event = {}
+    if event_ids:
+        for s in EventSong.query.filter(EventSong.event_id.in_(event_ids)).order_by(EventSong.position).all():
+            songs_by_event.setdefault(s.event_id, []).append(s)
+
+    
     return render_template("volunteer/schedule.html",
         teams=teams,
         selected_team=selected_team,
         events=events,
         roles=roles,
-        assignment_matrix=assignment_matrix
+        assignment_matrix=assignment_matrix,
+        songs_by_event=songs_by_event
     )
+

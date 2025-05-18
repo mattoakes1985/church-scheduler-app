@@ -74,23 +74,6 @@ def remove_song(event_song_id):
     db.session.commit()
     return redirect(url_for("worship_planning.planning"))
 
-@worship_planning_bp.route("/save-all-songs", methods=["POST"])
-@login_required
-def save_all_songs():
-    event_id = request.form.get("event_id", type=int)
-    song_ids = request.form.getlist("event_song_id")
-    custom_keys = request.form.getlist("custom_key")
-    notes_list = request.form.getlist("notes")
-
-    for i in range(len(song_ids)):
-        song = EventSong.query.get(int(song_ids[i]))
-        if song:
-            song.custom_key = custom_keys[i]
-            song.notes = notes_list[i]
-
-    db.session.commit()
-    return redirect(url_for("worship_planning.planning"))
-
 @worship_planning_bp.route("/update-song", methods=["POST"])
 @login_required
 def update_song():
@@ -99,11 +82,13 @@ def update_song():
     notes = request.form.get("notes")
 
     song = EventSong.query.get_or_404(event_song_id)
-    song.custom_key = custom_key
-    song.notes = notes
+    if custom_key is not None:
+        song.custom_key = custom_key
+    if notes is not None:
+        song.notes = notes
     db.session.commit()
+    return redirect(url_for("worship_planning.planning"))
 
-    return '', 204  # No content needed for HTMX
 
 
 @worship_planning_bp.route("/reorder-songs", methods=["POST"])
