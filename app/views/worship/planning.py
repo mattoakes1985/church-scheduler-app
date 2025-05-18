@@ -87,7 +87,8 @@ def update_song():
     if notes is not None:
         song.notes = notes
     db.session.commit()
-    return '', 204
+    return redirect(url_for("worship_planning.planning"))
+
 
 
 @worship_planning_bp.route("/reorder-songs", methods=["POST"])
