@@ -167,7 +167,7 @@ class EventSong(db.Model):
     song_id = db.Column(db.Integer, db.ForeignKey('song.id'), nullable=False)
     custom_key = db.Column(db.String(10), nullable=True)
     notes = db.Column(db.Text, nullable=True)
-
+    position = db.Column(db.Integer, nullable=True)  # NEW
     event = db.relationship('Event', backref='songs')
     song = db.relationship('Song', backref='events')
 

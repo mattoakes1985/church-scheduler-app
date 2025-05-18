@@ -35,5 +35,5 @@ def event_admin():
 
 
 @main.route("/worship-lead")
-def worship_lead():
-    return render_template("worship_lead.html")
+def redirect_to_worship_planning():
+    return redirect(url_for("worship_planning.planning"))

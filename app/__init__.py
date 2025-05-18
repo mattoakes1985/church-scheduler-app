@@ -80,6 +80,8 @@ def create_app():
     app.register_blueprint(volunteer_dashboard_bp)
     app.register_blueprint(volunteer_schedule_bp)
 
+    from app.views.worship.planning import worship_planning_bp
+    app.register_blueprint(worship_planning_bp)
 
     
     from .routes import main
