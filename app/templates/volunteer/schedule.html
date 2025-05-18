@@ -27,25 +27,40 @@
   {% if selected_team %}
     <table class="w-full table-auto text-sm border border-gray-300 dark:border-gray-700">
       <thead>
-        <tr class="bg-gray-200 dark:bg-gray-700">
-          <th class="p-2 text-left">Role \ Event</th>
-          {% for e in events %}
-            <th class="p-2 text-center">{{ e.date.strftime('%b %d') }}</th>
-          {% endfor %}
-        </tr>
-      </thead>
+  <tr class="bg-gray-200 dark:bg-gray-700 text-xs">
+    <th class="p-2 text-left">Role \ Event</th>
+    {% for e in events %}
+      <th class="p-2 text-center">
+        <div>
+  <h2 class="font-semibold text-gray-800 dark:text-gray-100 text-sm">
+  {{ e.name }}
+</h2>
+
+</h2>
+<p class="text-xs text-gray-500 dark:text-gray-400">
+  {{ e.date.strftime('%Y-%m-%d') }}
+</p>
+
+</div>
+
+      </th>
+    {% endfor %}
+  </tr>
+</thead>
+
       <tbody>
         {% for role in roles %}
-          <tr>
-            <td class="p-2 font-medium">{{ role.name }}</td>
-            {% for e in events %}
-              <td class="p-2 text-center">
-                {% set v = assignment_matrix.get((e.id, role.id)) %}
-                {{ v.name if v else "" }}
-              </td>
-            {% endfor %}
-          </tr>
-        {% endfor %}
+  <tr class="even:bg-gray-50 dark:even:bg-gray-800">
+    <td class="p-2 font-medium">{{ role.name }}</td>
+    {% for e in events %}
+      <td class="p-2 text-center">
+        {% set v = assignment_matrix.get((e.id, role.id)) %}
+        {{ v.name if v else "" }}
+      </td>
+    {% endfor %}
+  </tr>
+{% endfor %}
+
         <tr class="bg-gray-50 dark:bg-gray-800">
           <td class="p-2 font-semibold">Songs</td>
           {% for e in events %}
