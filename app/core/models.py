@@ -159,3 +159,15 @@ class Song(db.Model):
 
     def __str__(self):
         return self.name
+
+
+class EventSong(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    song_id = db.Column(db.Integer, db.ForeignKey('song.id'), nullable=False)
+    custom_key = db.Column(db.String(10), nullable=True)
+    notes = db.Column(db.Text, nullable=True)
+
+    event = db.relationship('Event', backref='songs')
+    song = db.relationship('Song', backref='events')
+

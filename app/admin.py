@@ -364,6 +364,38 @@ class SongAdminView(ModelView):
         'tempo', 'time_signature', 'notes', 'youtube_link'
     ]
 
+    form_args = {
+        'key_male': {
+            'choices': [
+                ('C', 'C'), ('C#', 'C#'), ('D', 'D'), ('Eb', 'Eb'),
+                ('E', 'E'), ('F', 'F'), ('F#', 'F#'), ('G', 'G'),
+                ('Ab', 'Ab'), ('A', 'A'), ('Bb', 'Bb'), ('B', 'B')
+            ],
+            'coerce': str
+        },
+        'key_female': {
+            'choices': [
+                ('C', 'C'), ('C#', 'C#'), ('D', 'D'), ('Eb', 'Eb'),
+                ('E', 'E'), ('F', 'F'), ('F#', 'F#'), ('G', 'G'),
+                ('Ab', 'Ab'), ('A', 'A'), ('Bb', 'Bb'), ('B', 'B')
+            ],
+            'coerce': str
+        },
+        'time_signature': {
+            'choices': [
+                ('4/4', '4/4'), ('3/4', '3/4'), ('6/8', '6/8'), ('3/8', '3/8'), ('2/8', '2/8'), ('2/4', '2/4')
+            ],
+            'coerce': str
+        }
+    }
+
+    form_overrides = {
+        'key_male': SelectField,
+        'key_female': SelectField,
+        'time_signature': SelectField
+    }
+
+
 
 
 class BasicModelView(ModelView):
