@@ -8,12 +8,42 @@
     {% if upcoming_assignments %}
       <ul class="space-y-2">
         {% for a in upcoming_assignments %}
-          <a href="{{ url_for('volunteer_schedule.schedule', team_id=a.team_id) }}">
-  <li class="bg-gray-100 dark:bg-gray-800 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
-    {{ a.event.date.strftime('%A, %d %B') }} – {{ a.event.description or a.event.type }} – {{ a.role.name }}
-  </li>
-</a>
-
+          <li class="bg-gray-100 dark:bg-gray-800 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer"
+              onclick="toggleSongs(this)">
+            <div class="flex justify-between items-center">
+              <span>
+                {{ a.event.date.strftime('%A, %d %B') }} – {{ a.event.description or a.event.type }} – {{ a.role.name }}
+              </span>
+              <span class="toggle-icon text-gray-400">+</span>
+            </div>
+            <div class="song-list mt-2 hidden text-sm text-gray-600 dark:text-gray-300">
+              <strong>Songs:</strong>
+              {% set songs = songs_by_event.get(a.event.id, []) %}
+              {% if songs %}
+                <ul class="ml-4 list-disc space-y-1">
+                  {% for s in songs %}
+                    <li>
+                      {{ s.song.name }}{% if s.custom_key %} ({{ s.custom_key }}){% endif %}
+                      {% if s.notes %}
+                        <button type="button"
+                                onclick='showNoteModal({{ s.notes|tojson }})'
+                                class="ml-1 text-blue-600 hover:text-blue-800"
+                                title="View Notes">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="inline h-4 w-4" fill="none"
+                               viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M11 5h7M5 5h.01M5 12h.01M5 19h.01M11 12h7M11 19h7" />
+                          </svg>
+                        </button>
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <p class="ml-4 italic text-gray-400">No songs planned</p>
+              {% endif %}
+            </div>
+          </li>
         {% endfor %}
       </ul>
     {% else %}
@@ -26,13 +56,11 @@
     {% if availability_needed %}
       <ul class="space-y-2">
         {% for e in availability_needed %}
-          <a href="{{ url_for('volunteer_schedule.schedule') }}">
-
-  <li class="bg-yellow-100 dark:bg-yellow-800 p-2 rounded hover:bg-yellow-200 dark:hover:bg-yellow-700">
-    {{ e.date.strftime('%A, %d %B') }} – {{ e.description or e.type }}
-  </li>
-</a>
-
+          <a href="{{ url_for('availability.availability_page') }}">
+            <li class="bg-yellow-100 dark:bg-yellow-800 p-2 rounded hover:bg-yellow-200 dark:hover:bg-yellow-700">
+              {{ e.date.strftime('%A, %d %B') }} – {{ e.description or e.type }}
+            </li>
+          </a>
         {% endfor %}
       </ul>
     {% else %}
@@ -45,4 +73,38 @@
     <div class="text-gray-400 italic">Coming soon…</div>
   </div>
 </div>
+
+<!-- Notes Modal -->
+<div id="noteModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-40 flex items-center justify-center">
+  <div class="bg-white dark:bg-gray-800 p-4 rounded shadow-lg w-full max-w-md">
+    <h3 class="text-lg font-semibold mb-2">Song Notes</h3>
+    <div id="noteModalContent" class="text-sm text-gray-800 dark:text-gray-100 whitespace-pre-line"></div>
+    <div class="mt-4 text-right">
+      <button onclick="closeNoteModal()" class="px-3 py-1 rounded bg-blue-600 text-white text-sm">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleSongs(container) {
+    const songList = container.querySelector('.song-list');
+    const icon = container.querySelector('.toggle-icon');
+    if (songList.classList.contains('hidden')) {
+      songList.classList.remove('hidden');
+      icon.textContent = '–';
+    } else {
+      songList.classList.add('hidden');
+      icon.textContent = '+';
+    }
+  }
+
+  function showNoteModal(noteText) {
+    document.getElementById("noteModalContent").textContent = noteText || "No notes available.";
+    document.getElementById("noteModal").classList.remove("hidden");
+  }
+
+  function closeNoteModal() {
+    document.getElementById("noteModal").classList.add("hidden");
+  }
+</script>
 {% endblock %}
