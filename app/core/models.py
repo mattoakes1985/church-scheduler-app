@@ -88,7 +88,6 @@ class Event(db.Model):
         return f"{self.name} ({self.date.strftime('%Y-%m-%d')})"
 
 
-
 class EventTemplate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -134,7 +133,6 @@ class VolunteerAvailability(db.Model):
     team = db.relationship('Team')
 
 
-
 class VolunteerAssignment(db.Model):
     __tablename__ = 'volunteer_assignment'
     id = db.Column(db.Integer, primary_key=True)
@@ -148,3 +146,16 @@ class VolunteerAssignment(db.Model):
     team = db.relationship('Team', backref='assignments')
     role = db.relationship('Role', backref='assignments')
 
+class Song(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    artist = db.Column(db.String(200), nullable=False)
+    key_male = db.Column(db.String(20), nullable=True)
+    key_female = db.Column(db.String(20), nullable=True)
+    tempo = db.Column(db.String(50), nullable=True)
+    time_signature = db.Column(db.String(10), nullable=True)
+    notes = db.Column(db.Text, nullable=True)
+    youtube_link = db.Column(db.String(300), nullable=True)
+
+    def __str__(self):
+        return self.name

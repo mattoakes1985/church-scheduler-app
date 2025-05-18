@@ -5,14 +5,14 @@ from flask_migrate import Migrate
 from .admin import (
     VolunteerAdminView, VolunteerTeamRoleAdmin, TeamRoleAdmin, BasicModelView,
     EventTeamRequirementAdmin, EventAdminView, EventTemplateAdmin, TemplateTeamRoleAdmin,
-    AdminHomeView 
+    AdminHomeView
 )
 
 from .forms import VolunteerForm
 from app.extensions import db, login_manager
 from app.core.models import (
     Volunteer, Team, Role, TeamRole, VolunteerTeamRole,
-    Event, EventTemplate, EventTeamRequirement, TemplateTeamRole
+    Event, EventTemplate, EventTeamRequirement, TemplateTeamRole, Song
 )
 from app.views.auth import auth_bp
 from .dashboard import DashboardView
@@ -48,6 +48,7 @@ def create_app():
             from . import routes
             from .core import models
             from .dashboard import DashboardView
+            from .admin import SongAdminView
     
     admin.add_view(DashboardView())
     admin.add_view(VolunteerAdminView(Volunteer, db.session, endpoint='volunteers', category='People & Teams'))
@@ -60,6 +61,8 @@ def create_app():
     admin.add_view(EventTeamRequirementAdmin(EventTeamRequirement, db.session, category='Events'))
     admin.add_view(EventTemplateAdmin(EventTemplate, db.session, category='Events'))
     admin.add_view(TemplateTeamRoleAdmin(TemplateTeamRole, db.session, category='Events'))
+    admin.add_view(SongAdminView(Song, db.session, category='Worship'))
+
 
     # Blueprints
     app.register_blueprint(auth_bp)
@@ -72,6 +75,13 @@ def create_app():
     from app.views.availability import availability_bp
     app.register_blueprint(availability_bp)
 
+    from app.views.volunteer.dashboard import volunteer_dashboard_bp
+    from app.views.volunteer.schedule import volunteer_schedule_bp
+    app.register_blueprint(volunteer_dashboard_bp)
+    app.register_blueprint(volunteer_schedule_bp)
+
+
+    
     from .routes import main
     app.register_blueprint(main)
 

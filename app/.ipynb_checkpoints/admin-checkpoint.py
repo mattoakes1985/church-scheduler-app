@@ -20,7 +20,7 @@ from flask import request
 from sqlalchemy import extract
 from app.decorators import admin_required
 
-@admin_required
+
 
 class AdminHomeView(AdminIndexView):
     @expose('/')
@@ -356,6 +356,14 @@ class TemplateTeamRoleAdmin(ModelView):
         )
 
         return form_class
+
+
+class SongAdminView(ModelView):
+    form_columns = [
+        'name', 'artist', 'key_male', 'key_female',
+        'tempo', 'time_signature', 'notes', 'youtube_link'
+    ]
+
 
 
 class BasicModelView(ModelView):

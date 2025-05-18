@@ -50,16 +50,16 @@
 
       <tbody>
         {% for role in roles %}
-  <tr class="even:bg-gray-50 dark:even:bg-gray-800">
-    <td class="p-2 font-medium">{{ role.name }}</td>
-    {% for e in events %}
-      <td class="p-2 text-center">
-        {% set v = assignment_matrix.get((e.id, role.id)) %}
-        {{ v.name if v else "" }}
-      </td>
-    {% endfor %}
-  </tr>
-{% endfor %}
+          <tr class="even:bg-gray-50 dark:even:bg-gray-800">
+            <td class="p-2 font-medium">{{ role.name }}</td>
+            {% for e in events %}
+              <td class="p-2 text-center">
+                {% set v = assignment_matrix.get((e.id, role.id)) %}
+                {{ v.name if v else "" }}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
 
         <tr class="bg-gray-50 dark:bg-gray-800">
           <td class="p-2 font-semibold">Songs</td>

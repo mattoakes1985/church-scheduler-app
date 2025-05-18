@@ -358,5 +358,13 @@ class TemplateTeamRoleAdmin(ModelView):
         return form_class
 
 
+class SongAdminView(ModelView):
+    form_columns = [
+        'name', 'artist', 'key_male', 'key_female',
+        'tempo', 'time_signature', 'notes', 'youtube_link'
+    ]
+
+
+
 class BasicModelView(ModelView):
     pass
