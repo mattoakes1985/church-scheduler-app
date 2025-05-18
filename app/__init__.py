@@ -72,6 +72,13 @@ def create_app():
     from app.views.availability import availability_bp
     app.register_blueprint(availability_bp)
 
+    from app.views.volunteer.dashboard import volunteer_dashboard_bp
+    from app.views.volunteer.schedule import volunteer_schedule_bp
+    app.register_blueprint(volunteer_dashboard_bp)
+    app.register_blueprint(volunteer_schedule_bp)
+
+
+    
     from .routes import main
     app.register_blueprint(main)
 

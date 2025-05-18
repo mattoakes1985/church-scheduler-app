@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="p-4 space-y-6">
+  <h1 class="text-xl font-semibold">Your Dashboard</h1>
+
+  <div>
+    <h2 class="font-medium text-lg mb-2">Upcoming Assignments (Next 6 Weeks)</h2>
+    {% if upcoming_assignments %}
+      <ul class="space-y-2">
+        {% for a in upcoming_assignments %}
+          <a href="{{ url_for('volunteer_schedule.schedule', team_id=a.team_id) }}">
+  <li class="bg-gray-100 dark:bg-gray-800 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
+    {{ a.event.date.strftime('%A, %d %B') }} – {{ a.event.description or a.event.type }} – {{ a.role.name }}
+  </li>
+</a>
+
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-gray-500">You have no upcoming assignments.</p>
+    {% endif %}
+  </div>
+
+  <div>
+    <h2 class="font-medium text-lg mb-2">Availability Needed</h2>
+    {% if availability_needed %}
+      <ul class="space-y-2">
+        {% for e in availability_needed %}
+          <a href="{{ url_for('volunteer_schedule.schedule') }}">
+
+  <li class="bg-yellow-100 dark:bg-yellow-800 p-2 rounded hover:bg-yellow-200 dark:hover:bg-yellow-700">
+    {{ e.date.strftime('%A, %d %B') }} – {{ e.description or e.type }}
+  </li>
+</a>
+
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-gray-500">You're up to date with availability.</p>
+    {% endif %}
+  </div>
+
+  <div>
+    <h2 class="font-medium text-lg mb-2">Notifications</h2>
+    <div class="text-gray-400 italic">Coming soon…</div>
+  </div>
+</div>
+{% endblock %}
