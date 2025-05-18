@@ -24,29 +24,28 @@
           }
         });
       });
-
-      window.showNoteModal = function(songId, notes) {
-        const modal = document.getElementById('noteModal');
-        modal.querySelector('[name=event_song_id]').value = songId;
-        modal.querySelector('[name=notes]').value = notes || '';
-        modal.classList.remove('hidden');
-      };
-
-      window.closeNoteModal = function() {
-        document.getElementById('noteModal').classList.add('hidden');
-      };
     });
+
+    function showNoteModal(songId, notes) {
+      document.getElementById('modalEventSongId').value = songId;
+      document.getElementById('modalNotes').value = notes || '';
+      document.getElementById('noteModal').classList.remove('hidden');
+    }
+
+    function closeNoteModal() {
+      document.getElementById('noteModal').classList.add('hidden');
+    }
   </script>
 
-  <!-- Notes Modal -->
+  <!-- Note Modal -->
   <div id="noteModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-40 flex items-center justify-center">
     <div class="bg-white dark:bg-gray-800 p-4 rounded shadow-lg w-full max-w-md">
       <h3 class="text-lg font-semibold mb-2">Edit Notes</h3>
       <form method="POST" action="{{ url_for('worship_planning.update_song') }}">
-        <input type="hidden" name="event_song_id" value="">
-        <textarea name="notes" rows="4" class="w-full p-2 border dark:bg-gray-700"></textarea>
-        <div class="mt-3 flex justify-end gap-2">
-          <button type="button" onclick="closeNoteModal()" class="px-3 py-1 rounded bg-gray-300 dark:bg-gray-600 text-sm">Cancel</button>
+        <input type="hidden" name="event_song_id" id="modalEventSongId">
+        <textarea name="notes" id="modalNotes" rows="4" class="w-full p-2 border dark:bg-gray-700 rounded"></textarea>
+        <div class="mt-3 flex justify-between items-center">
+          <button type="button" onclick="closeNoteModal()" class="text-sm text-gray-500 hover:text-gray-700">✖</button>
           <button type="submit" class="px-3 py-1 rounded bg-blue-600 text-white text-sm">Save</button>
         </div>
       </form>
@@ -54,7 +53,6 @@
   </div>
 
   <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 auto-rows-fr">
-
     {% for e in editable_events %}
       <div class="flex flex-col justify-between bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow p-4 w-full min-w-[420px]">
         <div>
@@ -79,58 +77,53 @@
                   <th class="px-2 py-1">Artist</th>
                   <th class="px-2 py-1">Key</th>
                   <th class="px-2 py-1">Time</th>
-                  <th class="px-2 py-1 text-center w-8">
-                    <span class="sr-only">Notes</span>
-                  </th>
-                  <th class="px-2 py-1 text-right w-8">
-                    <span class="sr-only">Remove</span>
-                  </th>
+                  <th class="px-2 py-1 text-center w-8"><span class="sr-only">Notes</span></th>
+                  <th class="px-2 py-1 text-right w-8"><span class="sr-only">Remove</span></th>
                 </tr>
               </thead>
               <tbody data-event-id="{{ e.event.id }}">
                 {% for s in e.songs %}
-                  <tr class="border-t dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700" data-song-id="{{ s.id }}" title="{{ s.notes }}">
-                    <td class="px-2 py-1 drag-handle cursor-move">≡</td>
-                    <td class="px-2 py-1">{{ s.song.name }}</td>
-                    <td class="px-2 py-1">{{ s.song.artist or "—" }}</td>
-                    <td class="px-2 py-1">
+                <tr class="border-t dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700" data-song-id="{{ s.id }}">
+                  <td class="px-2 py-1 drag-handle cursor-move">≡</td>
+                  <td class="px-2 py-1">{{ s.song.name }}</td>
+                  <td class="px-2 py-1">{{ s.song.artist or "—" }}</td>
+                  <td class="px-2 py-1">
+                    <form method="POST" action="{{ url_for('worship_planning.update_song') }}">
                       <input type="hidden" name="event_song_id" value="{{ s.id }}">
                       <select name="custom_key"
                               class="block w-full px-3 py-2 bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-                              hx-post="{{ url_for('worship_planning.update_song') }}"
-                              hx-include="[name=event_song_id]"
-                              hx-trigger="change"
-                              hx-swap="none">
+                              onchange="this.form.submit()">
                         <option value="">–</option>
                         {% for k in ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'] %}
                           <option value="{{ k }}" {% if s.custom_key == k %}selected{% endif %}>{{ k }}</option>
                         {% endfor %}
                       </select>
-                    </td>
-                    <td class="px-2 py-1">{{ s.song.time_signature or "—" }}</td>
-                    <td class="px-2 py-1 text-center">
-                      <button type="button"
-                              onclick="showNoteModal('{{ s.id }}', '{{ s.notes|e }}')"
-                              class="text-gray-500 hover:text-blue-600 focus:outline-none"
-                              title="Edit Notes">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M11 5h7M5 5h.01M5 12h.01M5 19h.01M11 12h7M11 19h7" />
-                        </svg>
-                      </button>
-                    </td>
-                    <td class="px-2 py-1 text-right">
-                      <a href="{{ url_for('worship_planning.remove_song', event_song_id=s.id) }}"
-                         class="text-gray-500 hover:text-red-600 focus:outline-none"
-                         title="Remove"
-                         onclick="return confirm('Remove this song?')">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </a>
-                    </td>
-                  </tr>
+                    </form>
+                  </td>
+                  <td class="px-2 py-1">{{ s.song.time_signature or "—" }}</td>
+                  <td class="px-2 py-1 text-center">
+                    <button type="button"
+                            onclick="showNoteModal('{{ s.id }}', {{ s.notes|tojson }})"
+                            class="text-blue-600 hover:text-blue-800 focus:outline-none"
+                            title="Edit Notes">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M11 5h7M5 5h.01M5 12h.01M5 19h.01M11 12h7M11 19h7" />
+                      </svg>
+                    </button>
+                  </td>
+                  <td class="px-2 py-1 text-right">
+                    <a href="{{ url_for('worship_planning.remove_song', event_song_id=s.id) }}"
+                       class="text-gray-500 hover:text-red-600 focus:outline-none"
+                       title="Remove"
+                       onclick="return confirm('Remove this song?')">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </a>
+                  </td>
+                </tr>
                 {% endfor %}
               </tbody>
             </table>
