@@ -1,8 +1,11 @@
 from flask import Blueprint, render_template, request
 from flask_login import login_required
 from sqlalchemy import extract
+from sqlalchemy.orm import aliased  
 from app.extensions import db
-from app.core.models import Team, Event, Role, VolunteerAssignment, EventTeamRequirement
+from app.core.models import Team, Event, Role, VolunteerAssignment, EventTeamRequirement, TemplateTeamRole
+
+       
 
 volunteer_schedule_bp = Blueprint("volunteer_schedule", __name__, url_prefix="/volunteer")
 
@@ -32,18 +35,35 @@ def schedule():
     roles = []
     assignment_matrix = {}
     if selected_team:
-        roles = db.session.query(Role).join(EventTeamRequirement)\
+        TemplateTeamRoleAlias = aliased(TemplateTeamRole)
+    
+        # Fetch roles ordered by TemplateTeamRole.position (if template is used)
+        roles_query = db.session.query(Role).join(EventTeamRequirement)\
+            .join(Event, EventTeamRequirement.event_id == Event.id)\
+            .outerjoin(
+                TemplateTeamRoleAlias,
+                db.and_(
+                    TemplateTeamRoleAlias.team_id == EventTeamRequirement.team_id,
+                    TemplateTeamRoleAlias.role_id == EventTeamRequirement.role_id,
+                    TemplateTeamRoleAlias.template_id == Event.template_id
+                )
+            )\
             .filter(EventTeamRequirement.event_id.in_(event_ids))\
             .filter(EventTeamRequirement.team_id == selected_team_id)\
-            .distinct().all()
+            .group_by(Role.id, Role.name, Role.is_lead, TemplateTeamRoleAlias.position)\
+            .order_by(TemplateTeamRoleAlias.position.nullslast(), Role.name)
 
+    
+        roles = roles_query.all()
+    
         assignments = VolunteerAssignment.query.filter(
             VolunteerAssignment.event_id.in_(event_ids),
             VolunteerAssignment.team_id == selected_team_id
         ).all()
-
+    
         for a in assignments:
             assignment_matrix[(a.event_id, a.role_id)] = a.volunteer
+
 
     # Song map
     from app.core.models import EventSong  # Add to top if not already

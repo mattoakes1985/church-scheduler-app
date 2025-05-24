@@ -3,29 +3,22 @@ from app.extensions import db
 from sqlalchemy import extract, and_
 from app.core.models import (
     Event, Team, Role, Volunteer, VolunteerAvailability,
-    EventTeamRequirement, VolunteerTeamRole, VolunteerAssignment
+    EventTeamRequirement, VolunteerTeamRole, VolunteerAssignment, TemplateTeamRole
 )
 from app.decorators import admin_required
-
-
 
 schedule_bp = Blueprint('schedule', __name__, url_prefix='/schedule')
 
 @schedule_bp.route("/", methods=["GET", "POST"])
-
 @admin_required
-
 def schedule_page():
     selected_year = request.values.get("year", type=int)
     selected_month = request.values.get("month", type=int)
     selected_team_id = request.values.get("team_id", type=int)
 
-    # Fetch unique years from Event dates (converted from Decimal to int)
+    # Years for dropdown
     raw_years = db.session.query(extract('year', Event.date)).distinct().order_by(extract('year', Event.date).desc()).all()
-    print("Raw years:", raw_years)
-
     years = [int(row[0]) for row in raw_years if row[0] is not None]
-
 
     months = []
     events = []
@@ -58,11 +51,26 @@ def schedule_page():
                 .distinct().all()
 
         if selected_team_id:
+            # Preload role position for template_id = 3
+            position_lookup = {
+                (ttr.team_id, ttr.role_id): ttr.position
+                for ttr in db.session.query(TemplateTeamRole)
+                .filter(TemplateTeamRole.template_id == 3)
+            }
+
             for event in events:
-                requirements = EventTeamRequirement.query.filter_by(
+                requirements = db.session.query(EventTeamRequirement).filter_by(
                     event_id=event.id,
                     team_id=selected_team_id
                 ).all()
+
+                # Sort using template position and then role name as fallback
+                requirements.sort(
+                    key=lambda r: (
+                        position_lookup.get((r.team_id, r.role_id), 9999),
+                        r.role.name if r.role else ""
+                    )
+                )
 
                 available_ids = db.session.query(VolunteerAvailability.volunteer_id)\
                     .filter_by(event_id=event.id).subquery()
@@ -71,14 +79,16 @@ def schedule_page():
                 assignments = {}
 
                 for req in requirements:
-                    eligible[req.role_id] = db.session.query(Volunteer).join(VolunteerTeamRole).join(VolunteerAvailability).filter(
-                        VolunteerAvailability.event_id == event.id,
-                        VolunteerAvailability.status == 'yes',
-                        VolunteerTeamRole.team_id == selected_team_id,
-                        VolunteerTeamRole.role_id == req.role_id,
-                        Volunteer.id == VolunteerAvailability.volunteer_id
-                    ).all()
-
+                    eligible[req.role_id] = db.session.query(Volunteer)\
+                        .join(VolunteerTeamRole)\
+                        .join(VolunteerAvailability)\
+                        .filter(
+                            VolunteerAvailability.event_id == event.id,
+                            VolunteerAvailability.status == 'yes',
+                            VolunteerTeamRole.team_id == selected_team_id,
+                            VolunteerTeamRole.role_id == req.role_id,
+                            Volunteer.id == VolunteerAvailability.volunteer_id
+                        ).all()
 
                     assigned = VolunteerAssignment.query.filter_by(
                         event_id=event.id,
