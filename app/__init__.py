@@ -83,6 +83,12 @@ def create_app():
     from app.views.worship.planning import worship_planning_bp
     app.register_blueprint(worship_planning_bp)
 
+    from app.routes import devtools_bp
+    app.register_blueprint(devtools_bp)
+
+    from app.views.volunteer.portal import volunteer_portal_bp
+    app.register_blueprint(volunteer_portal_bp)
+
     
     from .routes import main
     app.register_blueprint(main)
