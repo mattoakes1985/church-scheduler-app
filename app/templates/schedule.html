@@ -8,18 +8,19 @@
   <form method="GET" class="mb-6">
     <div class="flex flex-wrap gap-4 items-end">
 
-      <!-- Year Dropdown -->
-      <div>
-        <label for="year-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Year</label>
-        <select name="year" id="year-select"
-                class="block w-44 p-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-                onchange="this.form.submit()">
-          <option value="">All</option>
-          {% for y in years %}
-            <option value="{{ y[0] }}" {% if y[0] == selected_year %}selected{% endif %}>{{ y[0] }}</option>
-          {% endfor %}
-        </select>
-      </div>
+    <!-- Year Dropdown -->
+    <div>
+      <label for="year-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Year</label>
+      <select name="year" id="year-select"
+              class="block w-44 p-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+              onchange="this.form.submit()">
+        <option value="">All</option>
+        {% for y in years %}
+          <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
 
       <!-- Month Dropdown -->
       <div>

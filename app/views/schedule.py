@@ -20,7 +20,13 @@ def schedule_page():
     selected_month = request.values.get("month", type=int)
     selected_team_id = request.values.get("team_id", type=int)
 
-    years = db.session.query(extract('year', Event.date)).distinct().order_by(extract('year', Event.date).desc()).all()
+    # Fetch unique years from Event dates (converted from Decimal to int)
+    raw_years = db.session.query(extract('year', Event.date)).distinct().order_by(extract('year', Event.date).desc()).all()
+    print("Raw years:", raw_years)
+
+    years = [int(row[0]) for row in raw_years if row[0] is not None]
+
+
     months = []
     events = []
     teams = []
@@ -29,7 +35,7 @@ def schedule_page():
     if selected_year:
         months_query = db.session.query(extract('month', Event.date))\
             .filter(extract('year', Event.date) == selected_year).distinct()
-        month_nums = [m[0] for m in months_query]
+        month_nums = [int(m[0]) for m in months_query if m[0] is not None]
         months = [(m, [
             "January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
