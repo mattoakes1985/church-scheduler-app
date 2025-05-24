@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from app.extensions import db
-from sqlalchemy import extract
+from sqlalchemy import extract, and_
 from app.core.models import (
     Event, Team, Role, Volunteer, VolunteerAvailability,
     EventTeamRequirement, VolunteerTeamRole, VolunteerAssignment
@@ -43,8 +43,11 @@ def schedule_page():
 
     if selected_year and selected_month:
         events = Event.query.filter(
-            extract('year', Event.date) == selected_year,
-            extract('month', Event.date) == selected_month
+            and_(
+                extract('year', Event.date) == selected_year,
+                extract('month', Event.date) == selected_month,
+                Event.archived_at.is_(None)
+            )
         ).order_by(Event.date).all()
 
         event_ids = [e.id for e in events]

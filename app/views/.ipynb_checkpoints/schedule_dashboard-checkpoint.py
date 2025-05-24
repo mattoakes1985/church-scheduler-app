@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request
-from sqlalchemy import extract, func
+from sqlalchemy import extract, func, and_
 from app.extensions import db
 from app.core.models import (
     Event, Role, Volunteer, VolunteerAvailability,
@@ -21,9 +21,13 @@ def schedule_dashboard():
 
     # Get all events in the month
     events = Event.query.filter(
-        extract("year", Event.date) == selected_year,
-        extract("month", Event.date) == selected_month
+        and_(
+            Event.archived_at == None,
+            extract("year", Event.date) == selected_year,
+            extract("month", Event.date) == selected_month
+        )
     ).order_by(Event.date).all()
+
     event_ids = [e.id for e in events]
 
     # Get all roles used in those events

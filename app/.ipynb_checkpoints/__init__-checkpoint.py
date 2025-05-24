@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_admin import Admin
 from flask_migrate import Migrate
-
+import os
 from .admin import (
     VolunteerAdminView, VolunteerTeamRoleAdmin, TeamRoleAdmin, BasicModelView,
     EventTeamRequirementAdmin, EventAdminView, EventTemplateAdmin, TemplateTeamRoleAdmin,
@@ -19,7 +19,7 @@ from .dashboard import DashboardView
 
 def create_app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///church.db'
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///instance/church.db")
     app.config['SECRET_KEY'] = 'your-secret-key'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

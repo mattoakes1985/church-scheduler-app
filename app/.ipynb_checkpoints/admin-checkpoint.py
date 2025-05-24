@@ -6,6 +6,8 @@ from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 from wtforms import SelectField
 from wtforms.validators import DataRequired
 
+from datetime import datetime
+
 from app.extensions import db
 
 from flask_admin import AdminIndexView, expose
@@ -247,11 +249,9 @@ class EventTeamRequirementAdmin(ModelView):
 
 
 
-        
-
 class EventAdminView(ModelView):
     form_columns = ['name', 'date', 'description', 'event_type', 'template']
-
+    
     form_overrides = {
         'event_type': SelectField
     }
@@ -273,7 +273,25 @@ class EventAdminView(ModelView):
             allow_blank=True
         )
     }
+
     
+    can_delete = True
+
+    def delete_model(self, model):
+        from datetime import datetime
+        model.archived_at = datetime.utcnow()
+        db.session.commit()
+        return True
+
+    def get_query(self):
+        # Exclude archived events
+        return super().get_query().filter(Event.archived_at == None)
+
+    def get_count_query(self):
+        # Exclude archived from count
+        return super().get_count_query().filter(Event.archived_at == None)
+
+    # Your original logic preserved below
     def after_model_change(self, form, model, is_created):
         from flask import current_app
     
@@ -293,7 +311,6 @@ class EventAdminView(ModelView):
         db.session.commit()
         current_app.logger.info("✅ Committed EventTeamRequirement records")
 
-    
     def after_model_save(self, form, model, is_created):
         from flask import current_app
         current_app.logger.info("🚨 after_model_save triggered")
@@ -313,7 +330,6 @@ class EventAdminView(ModelView):
     
             db.session.commit()
             current_app.logger.info(f"Committed {len(template_roles)} EventTeamRequirements for event {model.name}")
-
 
 
 class EventTemplateAdmin(ModelView):

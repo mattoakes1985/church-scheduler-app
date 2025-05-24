@@ -72,20 +72,35 @@ class VolunteerTeamRole(db.Model):
     team = db.relationship('Team', back_populates='volunteer_team_roles')
     role = db.relationship('Role', back_populates='volunteer_team_roles')
 
+
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     description = db.Column(db.Text, nullable=True)
     event_type = db.Column(db.String(50), nullable=False)
+    availability_locked = db.Column(db.Boolean, default=False)
 
-    availability_locked = db.Column(db.Boolean, default=False) 
+    # ✅ Soft delete support
+    archived_at = db.Column(db.DateTime, nullable=True)
 
     template_id = db.Column(db.Integer, db.ForeignKey('event_template.id'), nullable=True)
     template = db.relationship('EventTemplate', backref='events')
 
+    event_team_requirements = db.relationship(
+        "EventTeamRequirement",
+        backref="event",
+        cascade="all, delete-orphan",
+        single_parent=True,
+        passive_deletes=True
+    )
+
     def __str__(self):
         return f"{self.name} ({self.date.strftime('%Y-%m-%d')})"
+
+    def archive(self):
+        self.archived_at = datetime.utcnow()
+
 
 
 class EventTemplate(db.Model):
@@ -98,11 +113,14 @@ class EventTemplate(db.Model):
         
 class EventTeamRequirement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    event_id = db.Column(
+        db.Integer,
+        db.ForeignKey('event.id', ondelete="CASCADE"),
+        nullable=False
+    )
+
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
-
-    event = db.relationship('Event', backref='team_requirements')  # ← Add this
     team = db.relationship('Team')
     role = db.relationship('Role')
 

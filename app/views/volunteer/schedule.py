@@ -22,6 +22,7 @@ def schedule():
     selected_month = now.month
 
     events = Event.query.filter(
+        Event.archived_at == None,
         extract("year", Event.date) == selected_year,
         extract("month", Event.date) == selected_month
     ).order_by(Event.date).all()
