@@ -15,20 +15,26 @@ depends_on = None
 
 
 def upgrade():
-    # Create sequence explicitly
-    op.execute("CREATE SEQUENCE IF NOT EXISTS volunteer_availability_id_seq")
-
-    # Attach sequence to column
+    op.execute("""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM pg_class WHERE relname = 'volunteer_availability_id_seq'
+            ) THEN
+                CREATE SEQUENCE volunteer_availability_id_seq;
+            END IF;
+        END
+        $$;
+    """)
     op.execute("""
         ALTER TABLE volunteer_availability
-        ALTER COLUMN id SET DEFAULT nextval('volunteer_availability_id_seq'),
-        ALTER COLUMN id SET NOT NULL
+        ALTER COLUMN id SET DEFAULT nextval('volunteer_availability_id_seq');
+    """)
+    op.execute("""
+        ALTER SEQUENCE volunteer_availability_id_seq
+        OWNED BY volunteer_availability.id;
     """)
 
-    # Ensure sequence is set to correct next value
-    op.execute("""
-        SELECT setval('volunteer_availability_id_seq', COALESCE((SELECT MAX(id) FROM volunteer_availability), 1) + 1, false)
-    """)
 
 
 def downgrade():
