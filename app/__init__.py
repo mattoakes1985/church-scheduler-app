@@ -120,7 +120,8 @@ def create_app():
     def forbidden(error):
         from flask import flash, redirect, url_for
         flash("You do not have permission to access that page.", "warning")
-        return redirect(url_for('main.volunteer_portal'))
+        return redirect(url_for('volunteer_portal.volunteer_portal'))
+
 
 
     return app
