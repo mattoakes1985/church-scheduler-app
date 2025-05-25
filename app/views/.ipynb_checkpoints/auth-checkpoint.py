@@ -4,7 +4,8 @@ from app.extensions import db, login_manager
 from app.core.models import Volunteer
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
-
+from flask_mail import Message
+from app.extensions import mail  # make sure mail is initialized
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -36,20 +37,48 @@ def logout():
     flash("You have been logged out.", "info")
     return redirect(url_for("auth.login"))
 
+
+
 @auth_bp.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
     if request.method == "POST":
-        email = request.form.get("email")
+        email = request.form.get("email").strip().lower()
         user = Volunteer.query.filter_by(email=email).first()
+
         if user:
-            flash("Password reset link generated (for testing)", "info")
-            return redirect(url_for("auth.reset_password", volunteer_id=user.id))
-        flash("Email not found.", "danger")
+            token = user.get_reset_token()
+            reset_url = url_for("auth.reset_password_token", token=token, _external=True)
+
+            msg = Message("Password Reset Request", recipients=[email])
+            msg.body = f"""Hello {user.name},
+
+To reset your password, click the following link:
+{reset_url}
+
+If you did not request this, simply ignore this email.
+
+- Church Scheduler Team
+"""
+            try:
+                mail.send(msg)
+                print("[DEBUG] Email sent successfully.")
+            except Exception as e:
+                print("[ERROR] Failed to send email:", e)
+
+        flash("If your email is registered, you'll receive a password reset link.", "info")
+        return redirect(url_for("auth.login"))
+
     return render_template("auth/forgot_password.html")
 
-@auth_bp.route("/reset-password/<int:volunteer_id>", methods=["GET", "POST"])
-def reset_password(volunteer_id):
-    user = Volunteer.query.get_or_404(volunteer_id)
+
+
+@auth_bp.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password_token(token):
+    user = Volunteer.verify_reset_token(token)
+    if not user:
+        flash("That reset link is invalid or expired.", "danger")
+        return redirect(url_for("auth.forgot_password"))
+
     if request.method == "POST":
         new_pw = request.form.get("password")
         confirm_pw = request.form.get("confirm_password")
@@ -60,4 +89,5 @@ def reset_password(volunteer_id):
         db.session.commit()
         flash("Password updated. You can now log in.", "success")
         return redirect(url_for("auth.login"))
+
     return render_template("auth/reset_password.html", volunteer=user)

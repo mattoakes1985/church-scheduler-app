@@ -2,6 +2,10 @@ from app.extensions import db
 from datetime import datetime
 from flask_login import UserMixin 
 from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import URLSafeTimedSerializer
+from flask import current_app
+
+
 
 # Association table for many-to-many Volunteer <-> Team
 volunteer_team = db.Table('volunteer_team',
@@ -26,7 +30,18 @@ class Volunteer(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def get_reset_token(self, expires_sec=3600):
+        s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        return s.dumps(self.id, salt='password-reset-salt')
 
+    @staticmethod
+    def verify_reset_token(token, max_age=3600):
+        s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        try:
+            volunteer_id = s.loads(token, salt='password-reset-salt', max_age=max_age)
+        except Exception:
+            return None
+        return Volunteer.query.get(volunteer_id)
     def __str__(self):
         return self.name
 

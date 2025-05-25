@@ -2,6 +2,7 @@ from flask import Flask
 from flask_admin import Admin
 from flask_migrate import Migrate
 import os
+from app.extensions import mail
 from .admin import (
     VolunteerAdminView, VolunteerTeamRoleAdmin, TeamRoleAdmin, BasicModelView,
     EventTeamRequirementAdmin, EventAdminView, EventTemplateAdmin, TemplateTeamRoleAdmin,
@@ -22,9 +23,29 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///instance/church.db")
     app.config['SECRET_KEY'] = 'your-secret-key'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+
+    #app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')   
 
     db.init_app(app)
     Migrate(app, db)
+
+
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+    app.config['MAIL_PORT'] = 587
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USE_SSL'] = False
+    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+    app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME') or 'churchscheduler.app@gmail.com'
+
+    print("MAIL_USERNAME:", app.config['MAIL_USERNAME'])
+    print("MAIL_PASSWORD is set:", bool(app.config['MAIL_PASSWORD']))
+    print("MAIL_DEFAULT_SENDER:", app.config['MAIL_DEFAULT_SENDER'])
+
+
+    # Initialize mail
+    mail.init_app(app)
 
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
