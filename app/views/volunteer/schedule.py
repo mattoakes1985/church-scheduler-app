@@ -4,8 +4,8 @@ from sqlalchemy import extract
 from sqlalchemy.orm import aliased  
 from app.extensions import db
 from app.core.models import Team, Event, Role, VolunteerAssignment, EventTeamRequirement, TemplateTeamRole
-
-       
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 volunteer_schedule_bp = Blueprint("volunteer_schedule", __name__, url_prefix="/volunteer")
 
@@ -15,19 +15,20 @@ def schedule():
     selected_team_id = request.args.get("team_id", type=int)
 
     teams = Team.query.order_by(Team.name).all()
-
     selected_team = Team.query.get(selected_team_id) if selected_team_id else None
 
-    # Default to current month/year
-    from datetime import datetime
+    # Month/year handling
     now = datetime.now()
-    selected_year = now.year
-    selected_month = now.month
+    selected_year = request.args.get("year", default=now.year, type=int)
+    selected_month = request.args.get("month", default=now.month, type=int)
+
+    start_of_month = datetime(selected_year, selected_month, 1)
+    end_of_month = (start_of_month + relativedelta(months=1)) - relativedelta(seconds=1)
 
     events = Event.query.filter(
         Event.archived_at == None,
-        extract("year", Event.date) == selected_year,
-        extract("month", Event.date) == selected_month
+        Event.date >= start_of_month,
+        Event.date <= end_of_month
     ).order_by(Event.date).all()
 
     event_ids = [e.id for e in events]
@@ -53,7 +54,6 @@ def schedule():
             .group_by(Role.id, Role.name, Role.is_lead, TemplateTeamRoleAlias.position)\
             .order_by(TemplateTeamRoleAlias.position.nullslast(), Role.name)
 
-    
         roles = roles_query.all()
     
         assignments = VolunteerAssignment.query.filter(
@@ -64,21 +64,31 @@ def schedule():
         for a in assignments:
             assignment_matrix[(a.event_id, a.role_id)] = a.volunteer
 
-
     # Song map
-    from app.core.models import EventSong  # Add to top if not already
+    from app.core.models import EventSong
     songs_by_event = {}
     if event_ids:
         for s in EventSong.query.filter(EventSong.event_id.in_(event_ids)).order_by(EventSong.position).all():
             songs_by_event.setdefault(s.event_id, []).append(s)
 
-    
+    # Month navigation
+    prev_month = (start_of_month - relativedelta(months=1)).month
+    prev_year = (start_of_month - relativedelta(months=1)).year
+    next_month = (start_of_month + relativedelta(months=1)).month
+    next_year = (start_of_month + relativedelta(months=1)).year
+
     return render_template("volunteer/schedule.html",
         teams=teams,
         selected_team=selected_team,
         events=events,
         roles=roles,
         assignment_matrix=assignment_matrix,
-        songs_by_event=songs_by_event
+        songs_by_event=songs_by_event,
+        start_of_month=start_of_month,
+        selected_year=selected_year,
+        selected_month=selected_month,
+        prev_month=prev_month,
+        prev_year=prev_year,
+        next_month=next_month,
+        next_year=next_year
     )
-

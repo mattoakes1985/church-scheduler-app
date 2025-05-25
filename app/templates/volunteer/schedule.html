@@ -1,58 +1,59 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="p-4">
-    <a href="{{ url_for('volunteer_portal.volunteer_portal') }}"
-   class="inline-flex items-center px-4 py-2 mb-6 text-sm font-medium text-blue-600 border border-blue-600 rounded hover:bg-blue-600 hover:text-white transition">
-  ← Back to Volunteer Portal
-</a>
+  <a href="{{ url_for('volunteer_portal.volunteer_portal') }}"
+     class="inline-flex items-center px-4 py-2 mb-6 text-sm font-medium text-blue-600 border border-blue-600 rounded hover:bg-blue-600 hover:text-white transition">
+    ← Back to Volunteer Portal
+  </a>
 
   <h1 class="text-xl font-semibold mb-4">Master Schedule</h1>
 
   <form method="GET" class="mb-6">
-  <div class="flex flex-wrap gap-4 items-end">
-
-    <div>
-      <label for="team_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Team</label>
-      <select name="team_id" id="team_id"
-              class="block w-44 p-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-              onchange="this.form.submit()">
-        <option value="">Choose a team</option>
-        {% for team in teams %}
-          <option value="{{ team.id }}" {% if selected_team and selected_team.id == team.id %}selected{% endif %}>
-            {{ team.name }}
-          </option>
-        {% endfor %}
-      </select>
+    <div class="flex flex-wrap gap-4 items-end">
+      <div>
+        <label for="team_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Team</label>
+        <select name="team_id" id="team_id"
+                class="block w-44 p-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                onchange="this.form.submit()">
+          <option value="">Choose a team</option>
+          {% for team in teams %}
+            <option value="{{ team.id }}" {% if selected_team and selected_team.id == team.id %}selected{% endif %}>
+              {{ team.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
     </div>
-
-  </div>
-</form>
-
+  </form>
 
   {% if selected_team %}
+    <!-- Month navigation -->
+    <div class="flex justify-between items-center mb-6 mt-2">
+      <a href="{{ url_for('volunteer_schedule.schedule', team_id=selected_team.id, month=prev_month, year=prev_year) }}"
+         class="text-blue-600 hover:underline text-sm">← Previous</a>
+
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-white">
+        {{ start_of_month.strftime('%B %Y') }}
+      </h2>
+
+      <a href="{{ url_for('volunteer_schedule.schedule', team_id=selected_team.id, month=next_month, year=next_year) }}"
+         class="text-blue-600 hover:underline text-sm">Next →</a>
+    </div>
+
     <table class="w-full table-auto text-sm border border-gray-300 dark:border-gray-700">
       <thead>
-  <tr class="bg-gray-200 dark:bg-gray-700 text-xs">
-    <th class="p-2 text-left">Role \ Event</th>
-    {% for e in events %}
-      <th class="p-2 text-center">
-        <div>
-  <h2 class="font-semibold text-gray-800 dark:text-gray-100 text-sm">
-  {{ e.name }}
-</h2>
-
-</h2>
-<p class="text-xs text-gray-500 dark:text-gray-400">
-  {{ e.date.strftime('%Y-%m-%d') }}
-</p>
-
-</div>
-
-      </th>
-    {% endfor %}
-  </tr>
-</thead>
-
+        <tr class="bg-gray-200 dark:bg-gray-700 text-xs">
+          <th class="p-2 text-left">Role \ Event</th>
+          {% for e in events %}
+            <th class="p-2 text-center">
+              <div>
+                <h2 class="font-semibold text-gray-800 dark:text-gray-100 text-sm">{{ e.name }}</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ e.date.strftime('%Y-%m-%d') }}</p>
+              </div>
+            </th>
+          {% endfor %}
+        </tr>
+      </thead>
       <tbody>
         {% for role in roles %}
           <tr class="even:bg-gray-50 dark:even:bg-gray-800">
@@ -66,76 +67,68 @@
           </tr>
         {% endfor %}
 
-<tr class="bg-gray-50 dark:bg-gray-800">
-  <td class="p-2 font-semibold text-center">Songs</td>
-  {% for e in events %}
-    <td class="p-2 text-sm text-center text-gray-600 dark:text-gray-300">
-      {% set event_songs = songs_by_event.get(e.id, []) %}
-      {% if event_songs %}
-        <ul class="space-y-2">
-          {% for s in event_songs %}
-            <li class="leading-tight">
-  <div class="font-medium">
-    {{ s.song.name }}
-    {% if s.custom_key %}<span class="text-xs">({{ s.custom_key }})</span>{% endif %}
-    {% if s.notes %}
-  <button type="button"
-          onclick='showNoteModal({{ s.notes|tojson }})'
-          class="ml-1 text-blue-600 hover:text-blue-800"
-          title="View Notes">
-    <svg xmlns="http://www.w3.org/2000/svg" class="inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M11 5h7M5 5h.01M5 12h.01M5 19h.01M11 12h7M11 19h7" />
-    </svg>
-  </button>
-{% endif %}
-
-  </div>
-  <div class="text-xs text-gray-500 italic">
-    {% if s.song.tempo %}{{ s.song.tempo }} BPM{% endif %}
-    {% if s.song.tempo and s.song.time_signature %}&middot;{% endif %}
-    {% if s.song.time_signature %}{{ s.song.time_signature }}{% endif %}
-  </div>
-</li>
-
+        <tr class="bg-gray-50 dark:bg-gray-800">
+          <td class="p-2 font-semibold text-center">Songs</td>
+          {% for e in events %}
+            <td class="p-2 text-sm text-center text-gray-600 dark:text-gray-300">
+              {% set event_songs = songs_by_event.get(e.id, []) %}
+              {% if event_songs %}
+                <ul class="space-y-2">
+                  {% for s in event_songs %}
+                    <li class="leading-tight">
+                      <div class="font-medium">
+                        {{ s.song.name }}
+                        {% if s.custom_key %}<span class="text-xs">({{ s.custom_key }})</span>{% endif %}
+                        {% if s.notes %}
+                          <button type="button"
+                                  onclick='showNoteModal({{ s.notes|tojson }})'
+                                  class="ml-1 text-blue-600 hover:text-blue-800"
+                                  title="View Notes">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5h7M5 5h.01M5 12h.01M5 19h.01M11 12h7M11 19h7" />
+                            </svg>
+                          </button>
+                        {% endif %}
+                      </div>
+                      <div class="text-xs text-gray-500 italic">
+                        {% if s.song.tempo %}{{ s.song.tempo }} BPM{% endif %}
+                        {% if s.song.tempo and s.song.time_signature %}&middot;{% endif %}
+                        {% if s.song.time_signature %}{{ s.song.time_signature }}{% endif %}
+                      </div>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <span class="italic text-gray-400">—</span>
+              {% endif %}
+            </td>
           {% endfor %}
-        </ul>
-      {% else %}
-        <span class="italic text-gray-400">—</span>
-      {% endif %}
-    </td>
-  {% endfor %}
-</tr>
-
-
+        </tr>
+      </tbody>
     </table>
 
     <!-- Notes Modal -->
-<div id="noteModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-40 flex items-center justify-center">
-  <div class="bg-white dark:bg-gray-800 p-4 rounded shadow-lg w-full max-w-md">
-    <h3 class="text-lg font-semibold mb-2">Song Notes</h3>
-    <div id="noteModalContent" class="text-sm text-gray-800 dark:text-gray-100 whitespace-pre-line"></div>
-    <div class="mt-4 text-right">
-      <button onclick="closeNoteModal()" class="px-3 py-1 rounded bg-blue-600 text-white text-sm">Close</button>
+    <div id="noteModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-40 flex items-center justify-center">
+      <div class="bg-white dark:bg-gray-800 p-4 rounded shadow-lg w-full max-w-md">
+        <h3 class="text-lg font-semibold mb-2">Song Notes</h3>
+        <div id="noteModalContent" class="text-sm text-gray-800 dark:text-gray-100 whitespace-pre-line"></div>
+        <div class="mt-4 text-right">
+          <button onclick="closeNoteModal()" class="px-3 py-1 rounded bg-blue-600 text-white text-sm">Close</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<script>
-  function showNoteModal(noteText) {
-    document.getElementById("noteModalContent").textContent = noteText || "No notes.";
-    document.getElementById("noteModal").classList.remove("hidden");
-  }
+    <script>
+      function showNoteModal(noteText) {
+        document.getElementById("noteModalContent").textContent = noteText || "No notes.";
+        document.getElementById("noteModal").classList.remove("hidden");
+      }
 
-  function closeNoteModal() {
-    document.getElementById("noteModal").classList.add("hidden");
-  }
-</script>
-
-
-
-      </tbody>
-    </table>
+      function closeNoteModal() {
+        document.getElementById("noteModal").classList.add("hidden");
+      }
+    </script>
   {% endif %}
 </div>
 {% endblock %}
