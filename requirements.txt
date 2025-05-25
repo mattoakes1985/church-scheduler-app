@@ -129,3 +129,4 @@ widgetsnbextension==4.0.14
 WTForms==3.2.1
 WTForms-SQLAlchemy==0.4.2
 zipp==3.21.0
+flask_mail
