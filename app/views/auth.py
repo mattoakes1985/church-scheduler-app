@@ -43,32 +43,38 @@ def logout():
 def forgot_password():
     if request.method == "POST":
         email = request.form.get("email").strip().lower()
+        print("[DEBUG] Submitted email:", email)
+
         user = Volunteer.query.filter_by(email=email).first()
 
         if user:
+            print("[DEBUG] Found user:", user.email)
             token = user.get_reset_token()
             reset_url = url_for("auth.reset_password_token", token=token, _external=True)
 
             msg = Message("Password Reset Request", recipients=[email])
             msg.body = f"""Hello {user.name},
 
-To reset your password, click the following link:
+To reset your password, click the link below:
 {reset_url}
 
-If you did not request this, simply ignore this email.
-
-- Church Scheduler Team
+If you did not request this, you can ignore this email.
 """
+
             try:
                 mail.send(msg)
                 print("[DEBUG] Email sent successfully.")
             except Exception as e:
                 print("[ERROR] Failed to send email:", e)
 
+        else:
+            print("[DEBUG] No user found with that email.")
+
         flash("If your email is registered, you'll receive a password reset link.", "info")
         return redirect(url_for("auth.login"))
 
     return render_template("auth/forgot_password.html")
+
 
 
 
