@@ -22,7 +22,8 @@ def login():
         if user and user.password_hash and check_password_hash(user.password_hash, password):
             login_user(user)
             flash("Logged in successfully.", "success")
-            return redirect(url_for("main.volunteer_portal"))
+            return redirect(url_for("volunteer_portal.volunteer_portal"))
+
 
         flash("Invalid email or password.", "danger")
 

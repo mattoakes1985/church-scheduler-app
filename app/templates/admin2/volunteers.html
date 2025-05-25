@@ -2,13 +2,17 @@
 {% block title %}Volunteers{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Volunteers</h1>
-<table class="w-full text-left border dark:border-gray-700 bg-white dark:bg-gray-800">
+<a href="{{ url_for('admin2.add_volunteer') }}" class="mb-4 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+  + Add Volunteer
+</a>
+
+<table class="w-full table-auto text-left border dark:border-gray-700 bg-white dark:bg-gray-800">
   <thead>
     <tr>
       <th class="px-4 py-2 border">Name</th>
       <th class="px-4 py-2 border">Email</th>
-      <th class="px-4 py-2 border">Lead?</th>
+      <th class="px-4 py-2 border">Admin?</th>
+      <th class="px-4 py-2 border">Actions</th>
     </tr>
   </thead>
   <tbody>
@@ -16,9 +20,16 @@
     <tr>
       <td class="px-4 py-2 border">{{ v.name }}</td>
       <td class="px-4 py-2 border">{{ v.email }}</td>
-      <td class="px-4 py-2 border">{{ 'Yes' if v.is_lead else 'No' }}</td>
+      <td class="px-4 py-2 border">{{ 'Yes' if v.is_admin else 'No' }}</td>
+      <td class="px-4 py-2 border space-x-2">
+        <a href="{{ url_for('admin2.edit_volunteer', id=v.id) }}" class="text-yellow-600 hover:underline">Edit</a>
+        <form action="{{ url_for('admin2.delete_volunteer', id=v.id) }}" method="POST" class="inline">
+          <button type="submit" class="text-red-600 hover:underline" onclick="return confirm('Are you sure?')">Delete</button>
+        </form>
+      </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+
 {% endblock %}
