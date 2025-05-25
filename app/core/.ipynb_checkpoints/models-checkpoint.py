@@ -129,10 +129,12 @@ class TemplateTeamRole(db.Model):
     template_id = db.Column(db.Integer, db.ForeignKey('event_template.id'), nullable=False)
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
+    position = db.Column(db.Integer, nullable=True)  # NEW
 
     template = db.relationship('EventTemplate', backref='template_team_roles')
     team = db.relationship('Team')
     role = db.relationship('Role')
+
 
 
 class VolunteerAvailability(db.Model):
@@ -140,7 +142,7 @@ class VolunteerAvailability(db.Model):
     __table_args__ = (
         db.UniqueConstraint('volunteer_id', 'event_id', name='uix_volunteer_event'),
     )
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)

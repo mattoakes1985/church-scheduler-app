@@ -89,6 +89,9 @@ def create_app():
     from app.views.volunteer.portal import volunteer_portal_bp
     app.register_blueprint(volunteer_portal_bp)
 
+    from app.admin2.routes import admin2_bp
+    app.register_blueprint(admin2_bp)
+
     
     from .routes import main
     app.register_blueprint(main)

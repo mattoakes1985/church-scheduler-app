@@ -3,42 +3,82 @@
 {% block title %}Volunteer Portal{% endblock %}
 
 {% block content %}
-<h1 class="text-3xl font-bold mb-6">Church Scheduler Volunteer Portal</h1>
+<div class="max-w-2xl mx-auto">
+<h1 class="text-3xl font-bold mb-6 text-center">Volunteer Portal</h1>
 
-<!-- VOLUNTEER SECTION -->
-<section class="mb-10">
-    <h2 class="text-xl font-semibold border-b border-gray-500 pb-2 mb-4">Volunteer Section</h2>
-    <ul class="space-y-2">
-        <li><a href="{{ url_for('volunteer_dashboard.dashboard') }}">Dashboard</a></li>
-         <li><a href="{{ url_for('volunteer_schedule.schedule') }}">Schedule</a></li>
+<!-- NOTIFICATIONS -->
+{% if availability_needed_count or upcoming_serving_count or past_serving_count %}
+  <div class="mb-6">
 
-        <li><a href="/availability" class="text-blue-500 hover:underline">Send/View Availability</a></li>
-        <li><a href="/event-history" class="text-blue-500 hover:underline">View Past Events</a></li>
-    </ul>
-</section>
+    {% if availability_needed_count %}
+    <div class="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100 p-4 rounded-md mb-4 flex items-start space-x-3">
+      <i data-lucide="alert-circle" class="w-6 h-6 mt-1"></i>
+      <div>
+        <p class="font-semibold">Availability Needed</p>
+        <p>You have <strong>{{ availability_needed_count }}</strong> event{{ 's' if availability_needed_count > 1 else '' }} in the next 2 months where you haven’t responded yet.</p>
+        <a href="{{ url_for('availability.availability_page') }}" class="text-sm text-blue-600 hover:underline">Respond now</a>
+      </div>
+    </div>
+    {% endif %}
 
-<!-- WORSHIP LEAD SECTION -->
-<section class="mb-10">
-    <h2 class="text-xl font-semibold border-b border-gray-500 pb-2 mb-4">Worship Lead Section</h2>
-    <ul class="space-y-2">
-        <li><span class="text-gray-400">Select Songs for Upcoming Events (coming soon)</span></li>
-    </ul>
-</section>
+    {% if upcoming_serving_count %}
+    <div class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 p-4 rounded-md mb-4 flex items-start space-x-3">
+      <i data-lucide="calendar-check" class="w-6 h-6 mt-1"></i>
+      <div>
+        <p class="font-semibold">You're Scheduled</p>
+        <p>You're serving at <strong>{{ upcoming_serving_count }}</strong> upcoming event{{ 's' if upcoming_serving_count > 1 else '' }}. 🙌</p>
+        <a href="{{ url_for('volunteer_schedule.schedule') }}" class="text-sm text-blue-600 hover:underline">View your schedule</a>
+      </div>
+    </div>
+    {% endif %}
 
-<!-- ADMIN SECTION -->
-<section class="mb-10">
+    {% if past_serving_count %}
+    <div class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 p-4 rounded-md mb-4 flex items-start space-x-3">
+      <i data-lucide="award" class="w-6 h-6 mt-1"></i>
+      <div>
+        <p class="font-semibold">Well Done!</p>
+        <p>You’ve served <strong>{{ past_serving_count }}</strong> time{{ 's' if past_serving_count > 1 else '' }} in the last 3 months. Keep it up! 🎉</p>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+{% endif %}
+
+
     
-    <h2 class="text-xl font-semibold border-b border-gray-500 pb-2 mb-4">Team Admin</h2>
-    <ul class="space-y-2">
-        <li><a href="/schedule" class="text-blue-500 hover:underline">Schedule Volunteers into Events</a></li>
-    </ul>
-</section>
+  <!-- VOLUNTEER SECTION -->
+  <section class="mb-10 bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+    <h2 class="text-xl font-semibold border-b border-gray-300 dark:border-gray-600 pb-3 mb-4 flex items-center space-x-2">
+      <i data-lucide="user" class="w-5 h-5 text-gray-600 dark:text-gray-300"></i>
+      <span>Volunteering</span>
+    </h2>
 
-<!-- EVENT ADMIN SECTION -->
-<section class="mb-10">
-    <h2 class="text-xl font-semibold border-b border-gray-500 pb-2 mb-4">Event Admin</h2>
-    <ul class="space-y-2">
-        <li><a href="/admin" class="text-blue-500 hover:underline">Create And Manage Events</a></li>
+    <ul class="space-y-4">
+      <li>
+        <a href="{{ url_for('volunteer_dashboard.dashboard') }}"
+           class="flex items-center space-x-3 text-blue-600 hover:underline">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="{{ url_for('volunteer_schedule.schedule') }}"
+           class="flex items-center space-x-3 text-blue-600 hover:underline">
+          <i data-lucide="calendar" class="w-5 h-5"></i>
+          <span>Schedule</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="/availability"
+           class="flex items-center space-x-3 text-blue-600 hover:underline">
+          <i data-lucide="check-circle" class="w-5 h-5"></i>
+          <span>Send/View Availability</span>
+        </a>
+      </li>
     </ul>
-</section>
+  </section>
+</div>
 {% endblock %}

@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block title %}New Admin{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">New Admin Area</h1>
+<ul class="space-y-2">
+  <li><a href="{{ url_for('admin2.volunteers') }}" class="text-blue-500 hover:underline">Manage Volunteers</a></li>
+  <!-- Add more links as you go -->
+</ul>
+{% endblock %}

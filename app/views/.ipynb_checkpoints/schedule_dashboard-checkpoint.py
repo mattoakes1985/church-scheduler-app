@@ -3,13 +3,10 @@ from sqlalchemy import extract, func, and_
 from app.extensions import db
 from app.core.models import (
     Event, Role, Volunteer, VolunteerAvailability,
-    EventTeamRequirement, VolunteerAssignment
+    EventTeamRequirement, VolunteerAssignment, TemplateTeamRole
 )
 
 schedule_dashboard_bp = Blueprint('schedule_dashboard', __name__, url_prefix='/schedule')
-
-
-
 
 @schedule_dashboard_bp.route("/dashboard")
 def schedule_dashboard():
@@ -30,10 +27,26 @@ def schedule_dashboard():
 
     event_ids = [e.id for e in events]
 
+    # Load role position mapping from template ID 3
+    position_lookup = {
+        (ttr.team_id, ttr.role_id): ttr.position
+        for ttr in db.session.query(TemplateTeamRole)
+        .filter(TemplateTeamRole.template_id == 3)
+    }
+
     # Get all roles used in those events
-    roles = db.session.query(Role).join(EventTeamRequirement)\
-        .filter(EventTeamRequirement.event_id.in_(event_ids))\
-        .distinct().all()
+    role_set = set()
+    for eid in event_ids:
+        reqs = EventTeamRequirement.query.filter_by(event_id=eid).all()
+        for req in reqs:
+            role_set.add((req.team_id, req.role_id, req.role))
+    roles = sorted(
+        [r[2] for r in role_set],
+        key=lambda r: (
+            position_lookup.get((next((t for t, rid, ro in role_set if ro.id == r.id), None), r.id), 9999),
+            r.name
+        )
+    )
 
     # Get all assignments
     assignments = VolunteerAssignment.query.filter(

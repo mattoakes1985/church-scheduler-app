@@ -1,10 +1,11 @@
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta
+from sqlalchemy.orm import aliased
 from app.extensions import db
 from app.core.models import (
     Event, VolunteerAssignment, VolunteerTeamRole,
-    EventSong, Song
+    EventSong, Song, TemplateTeamRole, Role
 )
 
 worship_planning_bp = Blueprint("worship_planning", __name__, url_prefix="/worship-lead")
@@ -31,15 +32,32 @@ def planning():
     editable, reference = [], []
 
     for event in events:
-        assignments = VolunteerAssignment.query.filter_by(event_id=event.id).all()
+        TemplateTeamRoleAlias = aliased(TemplateTeamRole)
+    
+        assignments = db.session.query(VolunteerAssignment)\
+            .join(Role, VolunteerAssignment.role_id == Role.id)\
+            .join(Event, VolunteerAssignment.event_id == Event.id)\
+            .outerjoin(
+                TemplateTeamRoleAlias,
+                db.and_(
+                    TemplateTeamRoleAlias.team_id == VolunteerAssignment.team_id,
+                    TemplateTeamRoleAlias.role_id == VolunteerAssignment.role_id,
+                    TemplateTeamRoleAlias.template_id == Event.template_id
+                )
+            )\
+            .filter(VolunteerAssignment.event_id == event.id)\
+            .order_by(TemplateTeamRoleAlias.position.nullslast(), Role.name)\
+            .all()
+    
         band = [(a.role.name, a.volunteer.name) for a in assignments]
         songs = EventSong.query.filter_by(event_id=event.id).order_by(EventSong.position).all()
         event_data = {"event": event, "band": band, "songs": songs}
-
+    
         if event.id in editable_event_ids:
             editable.append(event_data)
         else:
             reference.append(event_data)
+
 
     songs = Song.query.order_by(Song.name).all()
     return render_template("worship/planning.html", editable_events=editable, reference_events=reference, songs=songs)

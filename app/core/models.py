@@ -142,7 +142,7 @@ class VolunteerAvailability(db.Model):
     __table_args__ = (
         db.UniqueConstraint('volunteer_id', 'event_id', name='uix_volunteer_event'),
     )
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)

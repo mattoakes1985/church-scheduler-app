@@ -14,8 +14,6 @@ def index():
 
 @main.route('/volunteer-portal')
 @login_required
-def volunteer_portal():
-    return render_template('volunteer_portal.html', current_year=datetime.now().year)
 
 
 def admin_tools():
@@ -37,3 +35,13 @@ def event_admin():
 @main.route("/worship-lead")
 def redirect_to_worship_planning():
     return redirect(url_for("worship_planning.planning"))
+
+devtools_bp = Blueprint("devtools", __name__, url_prefix="/dev")
+
+@devtools_bp.route("/run-migrations")
+def run_migrations():
+    try:
+        upgrade()
+        return "✅ Migrations applied successfully."
+    except Exception as e:
+        return f"❌ Migration error: {e}", 500

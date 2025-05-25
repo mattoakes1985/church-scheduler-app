@@ -67,64 +67,65 @@
 
     <!-- NAVBAR -->
     <header class="bg-white dark:bg-gray-800 shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-xl font-semibold">Church Scheduler</h1>
-            <nav class="space-x-4 text-sm sm:text-base">
-                <a href="/volunteer-portal" class="hover:underline">Volunteer</a>
-                <a href="/worship-lead" class="hover:underline">Worship Lead</a>
-                <a href="/schedule" class="hover:underline">Team Admin</a>
-                <a href="/event-admin" class="hover:underline">Event & Users Admin</a>
+  <div class="max-w-7xl mx-auto px-4 py-3">
+    <div class="flex justify-between items-center">
+      <h1 class="text-xl font-semibold">Church Scheduler</h1>
 
-            </nav>
-            <div class="space-x-2">
-               
-                <div class="flex items-center space-x-4">
-
-                    
-  <!-- Theme toggle -->
-  <div class="flex items-center space-x-2">
-    <i data-lucide="sun" class="w-5 h-5 text-gray-500"></i>
-    <label for="themeSwitch" class="relative inline-block w-10 h-6">
-      <input type="checkbox" id="themeSwitch" class="sr-only peer">
-      <div class="block bg-gray-300 dark:bg-gray-600 w-full h-full rounded-full peer-checked:bg-gray-600"></div>
-      <div class="dot absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full transition peer-checked:translate-x-4"></div>
-    </label>
-    <i data-lucide="moon" class="w-5 h-5 text-gray-500"></i>
-  </div>
-
-                    
-<div class="relative">
-  {% if current_user.is_authenticated %}
-    <button id="userMenuButton" class="flex items-center text-sm rounded-full focus:outline-none" aria-expanded="false">
-      <i data-lucide="user" class="w-6 h-6 text-gray-700 dark:text-gray-200"></i>
-    </button>
-
-    <!-- Dropdown -->
-    <div id="userMenuDropdown"
-         class="hidden absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow text-sm z-50">
-      <div class="px-4 py-2 text-gray-800 dark:text-gray-200 border-b dark:border-gray-600">
-        {{ current_user.name.split(' ')[0] }}
-      </div>
-      <form method="POST" action="{{ url_for('auth.logout') }}">
-        <button type="submit"
-                class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 dark:text-red-400">
-          Log out
-        </button>
-      </form>
+      <!-- Hamburger Button -->
+      <button id="navToggle" class="sm:hidden text-gray-700 dark:text-gray-200 focus:outline-none">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
     </div>
-  {% else %}
-    <a href="{{ url_for('auth.login') }}" class="text-sm text-blue-600 hover:underline">Login</a>
-  {% endif %}
-</div>
 
+    <!-- Nav and user controls -->
+    <div id="navMenu" class="hidden sm:flex flex-col sm:flex-row sm:justify-between sm:items-center mt-3 sm:mt-0 space-y-2 sm:space-y-0">
+      <nav class="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0 text-sm sm:text-base text-center sm:text-left">
+        <a href="/volunteer-portal" class="hover:underline">Volunteer</a>
+        <a href="/worship-lead" class="hover:underline">Worship Lead</a>
+        <a href="/schedule" class="hover:underline">Team Admin</a>
+        <a href="/event-admin" class="hover:underline">Event & Users Admin</a>
+      </nav>
 
+      <!-- Right-side controls -->
+      <div class="flex items-center justify-center sm:justify-end space-x-4 mt-2 sm:mt-0">
+        <!-- Theme toggle -->
+        <div class="flex items-center space-x-2">
+          <i data-lucide="sun" class="w-5 h-5 text-gray-500"></i>
+          <label for="themeSwitch" class="relative inline-block w-10 h-6">
+            <input type="checkbox" id="themeSwitch" class="sr-only peer">
+            <div class="block bg-gray-300 dark:bg-gray-600 w-full h-full rounded-full peer-checked:bg-gray-600"></div>
+            <div class="dot absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full transition peer-checked:translate-x-4"></div>
+          </label>
+          <i data-lucide="moon" class="w-5 h-5 text-gray-500"></i>
+        </div>
 
-
-            
+        <!-- User menu -->
+        <div class="relative">
+          {% if current_user.is_authenticated %}
+            <button id="userMenuButton" class="flex items-center text-sm rounded-full focus:outline-none">
+              <i data-lucide="user" class="w-6 h-6 text-gray-700 dark:text-gray-200"></i>
+            </button>
+            <div id="userMenuDropdown"
+              class="hidden absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow text-sm z-50">
+              <div class="px-4 py-2 text-gray-800 dark:text-gray-200 border-b dark:border-gray-600">
+                {{ current_user.name.split(' ')[0] }}
+              </div>
+              <form method="POST" action="{{ url_for('auth.logout') }}">
+                <button type="submit"
+                        class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 dark:text-red-400">
+                  Log out
+                </button>
+              </form>
             </div>
+          {% else %}
+            <a href="{{ url_for('auth.login') }}" class="text-sm text-blue-600 hover:underline">Login</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
 
-    
-    </header>
 
     <!-- PAGE CONTENT -->
     <main class="flex-grow mx-auto p-4 {% if request.endpoint == 'main.event_admin' %}max-w-full{% else %}max-w-5xl{% endif %}">
@@ -164,17 +165,28 @@
   lucide.createIcons();
 </script>
 
-<script>
-  document.addEventListener("click", function (event) {
-    const menuBtn = document.getElementById("userMenuButton");
-    const menu = document.getElementById("userMenuDropdown");
 
-    if (menuBtn && menu) {
-      if (menuBtn.contains(event.target)) {
-        menu.classList.toggle("hidden");
-      } else if (!menu.contains(event.target)) {
-        menu.classList.add("hidden");
-      }
+
+<script>
+  // Hamburger toggle
+  document.getElementById("navToggle").addEventListener("click", function () {
+    document.getElementById("navMenu").classList.toggle("hidden");
+  });
+
+  // User dropdown toggle (robust version)
+  document.addEventListener("click", function (event) {
+    const userBtn = document.getElementById("userMenuButton");
+    const userMenu = document.getElementById("userMenuDropdown");
+
+    if (!userBtn || !userMenu) return;
+
+    const isClickInsideMenu = userMenu.contains(event.target);
+    const isClickOnButton = userBtn.contains(event.target);
+
+    if (isClickOnButton) {
+      userMenu.classList.toggle("hidden");
+    } else if (!isClickInsideMenu) {
+      userMenu.classList.add("hidden");
     }
   });
 </script>

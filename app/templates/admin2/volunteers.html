@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block title %}Volunteers{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Volunteers</h1>
+<table class="w-full text-left border dark:border-gray-700 bg-white dark:bg-gray-800">
+  <thead>
+    <tr>
+      <th class="px-4 py-2 border">Name</th>
+      <th class="px-4 py-2 border">Email</th>
+      <th class="px-4 py-2 border">Lead?</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for v in volunteers %}
+    <tr>
+      <td class="px-4 py-2 border">{{ v.name }}</td>
+      <td class="px-4 py-2 border">{{ v.email }}</td>
+      <td class="px-4 py-2 border">{{ 'Yes' if v.is_lead else 'No' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
