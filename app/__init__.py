@@ -31,20 +31,19 @@ def create_app():
     Migrate(app, db)
 
 
-    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-    app.config['MAIL_PORT'] = 587
-    app.config['MAIL_USE_TLS'] = True
-    app.config['MAIL_USE_SSL'] = False
-    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
-    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
-    app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME') or 'churchscheduler.app@gmail.com'
+    app.config.from_mapping(
+        MAIL_SERVER=os.environ.get("MAIL_SERVER", "smtp.gmail.com"),
+        MAIL_PORT=int(os.environ.get("MAIL_PORT", 587)),
+        MAIL_USE_TLS=os.environ.get("MAIL_USE_TLS", "True") == "True",
+        MAIL_USE_SSL=os.environ.get("MAIL_USE_SSL", "False") == "True",
+        MAIL_USERNAME=os.environ.get("MAIL_USERNAME"),
+        MAIL_PASSWORD=os.environ.get("MAIL_PASSWORD"),
+        MAIL_DEFAULT_SENDER=os.environ.get("MAIL_USERNAME", "churchscheduler.app@gmail.com")
+    )
 
-    print("MAIL_USERNAME:", app.config['MAIL_USERNAME'])
-    print("MAIL_PASSWORD is set:", bool(app.config['MAIL_PASSWORD']))
-    print("MAIL_DEFAULT_SENDER:", app.config['MAIL_DEFAULT_SENDER'])
+    print("MAIL_USERNAME:", app.config.get("MAIL_USERNAME"))
+    print("MAIL_PASSWORD is set:", bool(app.config.get("MAIL_PASSWORD")))
 
-
-    # Initialize mail
     mail.init_app(app)
 
     login_manager.init_app(app)
