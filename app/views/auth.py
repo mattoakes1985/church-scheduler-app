@@ -6,6 +6,7 @@ from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 from flask_mail import Message
 from app.extensions import mail  # make sure mail is initialized
+from sqlalchemy import func
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -45,7 +46,10 @@ def forgot_password():
         email = request.form.get("email").strip().lower()
         print("[DEBUG] Submitted email:", email)
 
-        user = Volunteer.query.filter_by(email=email).first()
+        
+
+        user = Volunteer.query.filter(func.lower(Volunteer.email) == email.lower()).first()
+
 
         if user:
             print("[DEBUG] Found user:", user.email)
