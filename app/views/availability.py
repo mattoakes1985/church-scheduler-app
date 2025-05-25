@@ -62,8 +62,9 @@ def availability_page():
                 if not event or event.availability_locked:
                     continue  # skip locked events
 
-                if not team_id or status not in {"yes", "no", "maybe"}:
+                if status not in {"yes", "no", "maybe"}:
                     continue
+
 
                 existing = VolunteerAvailability.query.filter_by(
                     volunteer_id=volunteer.id,
@@ -72,12 +73,11 @@ def availability_page():
                 
                 if existing:
                     existing.status = status
-                    existing.team_id = team_id
+                    
                 else:
                     db.session.add(VolunteerAvailability(
                         volunteer_id=volunteer.id,
                         event_id=event.id,
-                        team_id=team_id,
                         status=status
                     ))
 
@@ -96,9 +96,10 @@ def availability_page():
 
     
     availability_map = {
-        s.event_id: {"status": s.status, "team_id": s.team_id}
+        s.event_id: {"status": s.status}
         for s in submitted
     }
+
 
     return render_template("volunteer/availability.html",
         volunteer=volunteer,
